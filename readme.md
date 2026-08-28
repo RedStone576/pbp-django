@@ -1,1 +1,7 @@
-Ilham Firmansyah - 2506532643 - PBP E
+## Portofolio thing in django
+
+| table  | thingy               |
+| ------ | -------------------- |
+| Nama   | Ilham Firmansyah     |
+| NPM    | 2506532643           |
+| Kelas  | PBP E                |

@@ -7,8 +7,8 @@
 :root {
     --ink: #1c1917;
     --paper: #faf6f0;
-    --accent: #d95d39;
-    --accent-dark: #a8442a;
+    --accent: #e60076;
+    --accent-dark: #a3004c;
     --line: #e3d9c9;
     --text-muted: #6b6459;
     --radius: 4px;
@@ -198,4 +198,18 @@ h1, .brand {
     .social-links {
         justify-content: flex-start;
     }
+}
+
+
+/***/
+
+#projects h3 a {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.15em;
+}
+
+#projects h3 a:hover {
+    color: var(--accent-dark);
 }

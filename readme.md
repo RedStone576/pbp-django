@@ -1,52 +1,23 @@
-## Portofolio thing in django
+# Portofolio
 
-| table  | thingy               |
-| ------ | -------------------- |
-| Nama   | Ilham Firmansyah     |
-| NPM    | 2506532643           |
-| Kelas  | PBP E                |
+> [!NOTE]
+> Repository for the mandatory course "Platform-Based Programming (CSGE602022)"  
+> Faculty of Computer Science, Universitas Indonesia.
+> 
+> Ilham Firmansyah ([@RedStone576](https://github.com/redstone576)) - 2506532643, 06.00.12.01 - PBP E
 
 ### TODO
-[ ] set linter
-[ ] set actions
-[ ] semver tiap deploy 
+- [ ] set linter  
+- [ ] set actions  
+- [ ] semantic versioning 
 
 ---
 
-## Pertanyaan Reflektif Tugas 1
+> [!IMPORTANT]
+> Sections below is for lecturers and assistants
 
-1. ya, saya gunakan element semantic seperti `<section>` dan `<article>` untuk memberikan struktur dan makna pada konten. Selain membuat HTML lebih terstruktur, hal ini bisa membantu a11y karena struktur dokumen lebih mudah dipahami oleh browser dan screen reader(?)
+## Essay
+- Tugas 1: https://github.com/RedStone576/pbp-django/blob/chore/essay-restructure/essay/tugas1.md
 
-2. layar mobile terlalu kecil untuk display horizontal, sehingga saya gunakan media query untuk mengubah layout bila mendeteksi(? apadah istilahnya) ukuran layar yang lebih kecil
-
-3. karena static, konten harus diubah secara manual dan tidak bisa mengambil data secara dinamis. Pada iterasi berikutnya, saya ingin setup backend untuk me-return data proyek dkk. sehingga konten dapat diperbarui tanpa mengubah template secara langsung.
-
-### Tools yang saya gunakan
-- git cli
-- github
-- github cli (https://cli.github.com/)
-- lite-xl (https://lite-xl.com/): editor text yang saya gunakan
-- helium (https://helium.computer/): web browser yang saya gunakan
-- django (https://www.djangoproject.com/)
-
-#### Refrensi
-
-hands down, the best of the best, https://developer.mozilla.org/en-US/
-
-### AI Disclosure
-
-Saya gunakan Claude Haiku 4.5 ketika mencoba debugging gunicorn di windows (tanpa WSL 🥶🥶🥶).
-
-### Special Thanks
-- Mas "Bagas" Fossy (https://github.com/fossyy), karena merupakan devops terbaik.
-- Pak Daya, karena merupakan dosen terbaik.
-- Pacar saya, karena merupakan pacar terbaik.
-- Manajemen Fakultas Ilmu Komputer, karena merupakan fakultas terbaik.
-- Rektor Universitas Indonesia, karena merupakan universitas terbaik.
-- Tim Asdos PBP, karena merupakan tim asdos terbaik.
-
-### License
-
-uhhh
-
----
+## Credits
+TBA.

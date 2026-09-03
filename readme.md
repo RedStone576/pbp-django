@@ -17,7 +17,7 @@
 > Sections below is for lecturers and assistants
 
 ## Essay
-- Tugas 1: https://github.com/RedStone576/pbp-django/blob/chore/essay-restructure/essay/tugas1.md
+- Tugas 1: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas1.md)
 
 ## Credits
 TBA.

@@ -8,7 +8,7 @@
 
 ### TODO
 - [ ] set linter  
-- [ ] set actions  
+- [x] set actions  
 - [ ] semantic versioning 
 
 ---

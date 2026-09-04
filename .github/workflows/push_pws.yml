@@ -1,0 +1,13 @@
+name: Push to PWS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git push https://${{ secrets.PWS_USERNAME }}:${{ secrets.PWS_PASSWORD }}@pws.cs.ui.ac.id/ilham.naufal/portofolio.git master

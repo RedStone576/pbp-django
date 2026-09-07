@@ -206,6 +206,10 @@ h1, .brand {
             "details";
     }
 
+    .site-header nav {
+        display: none;
+    }
+
     .hero-photo {
         max-width: 220px;
     }

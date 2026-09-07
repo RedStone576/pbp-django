@@ -123,6 +123,6 @@ Bisa ditebak karena Claude tidak memiliki konteks yang cukup akan PWS untuk mela
 
 [^2]: https://claude.ai/share/dde770f1-ddf5-407e-876d-bd7796a2e6f9
 
-## Refrensi
+## Referensi
 
 - https://developer.mozilla.org/en-US/

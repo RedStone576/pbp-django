@@ -9,15 +9,18 @@
 ### TODO
 - [ ] set linter  
 - [x] set actions  
-- [ ] semantic versioning 
+- [x] ~~semantic versioning~~ [pride versioning](https://pridever.org/)
 
 ---
 
 > [!IMPORTANT]
 > Sections below is for lecturers and assistants
 
+## Deployment
+https://ilham-naufal-portofolio.pws.cs.ui.ac.id
+
 ## Essay
 - Tugas 1: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas1.md)
 
 ## Credits
-TBA.
+- PBP Fasilkom Ganjil 26/27

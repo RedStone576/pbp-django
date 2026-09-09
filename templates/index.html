@@ -19,6 +19,8 @@
             <nav>
                 <a href="{% url 'main:show_main' %}">Profile</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
+                <a href="{% url 'main:show_education' %}">Education</a>
+                <a href="{% url 'main:show_projects' %}">Projects</a>
             </nav>
             
         </div>
@@ -28,7 +30,7 @@
         <section class="hero" id="profile">
             <div class="container hero-grid">
                 <div class="hero-identity">
-                    <p class="hero-kicker">Information System - Faculty of Computer Science, Universitas Indonesia</p>
+                    <p class="hero-kicker">Faculty of Computer Science</p>
                     <h1>Ilham Firmansyah</h1>
                 </div>
                 
@@ -38,15 +40,16 @@
                 </div>
                 
                 <div class="hero-details">
+                    <!--
                     <div class="bio">
-                        <!--
                         <p>Recreational programmer, linguistic enthusiast, supposedly computer philosopher, and Tetris player at heart.</p>
                         <br>
                         <p>Loves raw JavaScript at its finest. TypeScript too, if you insist.</p>
-                        -->
 
-                        <p class="bio">{{ bio }}</p>
                     </div>
+                    -->
+                    
+                    <p class="bio">{{ bio|safe }}</p>
                     
                     <dl class="meta-list">
                         <div class="meta-row">
@@ -71,6 +74,7 @@
             </div>
         </section>
 
+        <!--
         <section id="projects">
             <div class="container">
                 <h2>Projects</h2>
@@ -136,6 +140,7 @@
                 </div>
             </div>
         </section>
+        -->
 
     </main>
 

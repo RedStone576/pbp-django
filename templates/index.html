@@ -1,153 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ name }} - Portofolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
-            
-            <nav>
-                <a href="{% url 'main:show_main' %}">Profile</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_education' %}">Education</a>
-                <a href="{% url 'main:show_projects' %}">Projects</a>
-            </nav>
-            
-        </div>
-    </header>
+        <meta name="description" content="Everything about {{ name }}">
+        <meta name="author" content="{{ name }}">
 
-    <main>
-        <section class="hero" id="profile">
-            <div class="container hero-grid">
-                <div class="hero-identity">
-                    <p class="hero-kicker">Faculty of Computer Science</p>
-                    <h1>Ilham Firmansyah</h1>
-                </div>
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="{{ name }}'s Portofolio">
+
+        <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+
+        <title>{{ name }} - Portofolio</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap"
+            rel="stylesheet"
+        >
+
+        <link rel="stylesheet" href="/static/css/manif.css">
+    </head>
+
+    <body>
+        <canvas id="life" aria-hidden="true"></canvas>
+
+        <main>
+            <header>
+                <h1>{{ name }}</h1>
                 
-                <div class="hero-photo">
-                    <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/me.webp" alt="Photo of {{ name }}">
-                </div>
+                <nav aria-label="Main navigation">
+                    <p>{{ npm }} • {{ study_program_kd }}</p>
+                    <a class="nav_selected" href="{% url 'main:show_main' %}">[About]</a>
+                    <a href="{% url 'main:show_experience' %}">[Experience]</a>
+                    <a href="{% url 'main:show_education' %}">[Education]</a>
+                    <a href="{% url 'main:show_projects' %}">[Projects]</a>
+                </nav>
+            </header>
+
+            <section aria-labelledby="aboutme">
+                <h2 id="aboutme">About Me</h2>
+
+                <p>
+                    {{ bio|safe }}
+                </p>
+
+            </section>
+
+            <section aria-labelledby="myviews">
+                <h2 id="aboutme">Manifesto</h2>
+
+                <p>I'm genuinely interested in the ethics of computing; what we build and what we ACTUALLY ship. I did considered a philosophy degree before I unavoidably went into Computer Science, so I guess that lens stuck around.</p>
+            
+                <p>I care about standards and how systems survive for years, even decades. For some reason, backwards compatibility gets treated as technical debt, but really, it's a constraint that teaches you something. That weird "for who?" decisions we make just to not break things. I feel like there's wisdom there if you look closely.</p>
                 
-                <div class="hero-details">
-                    <!--
-                    <div class="bio">
-                        <p>Recreational programmer, linguistic enthusiast, supposedly computer philosopher, and Tetris player at heart.</p>
-                        <br>
-                        <p>Loves raw JavaScript at its finest. TypeScript too, if you insist.</p>
+                <p>Broadly, I'm curious about programming languages, the web platform, and open source software.</p>
+            </section>
 
-                    </div>
-                    -->
-                    
-                    <p class="bio">{{ bio|safe }}</p>
-                    
-                    <dl class="meta-list">
-                        <div class="meta-row">
-                            <dt>NPM</dt>
-                            <dd>{{ npm }}</dd>
-                        </div>
-                        <div class="meta-row">
-                            <dt>Program</dt>
-                            <dd>{{ study_program }}</dd>
-                        </div>
-                    </dl>
-                    <div class="social-links">
-                        <a href="https://cesilia.dev" class="social-link">My Website</a>
-                        <a href="https://csui.cesilia.dev" class="social-link">My Other Website</a>
-                        <a href="https://firmansyah.cesilia.dev" class="social-link">My Other Other Website</a>
-                        <a href="https://git.fossy.my.id/femboy" class="social-link">Gitea</a>
-                        <a href="https://github.com/RedStone576" class="social-link">GitHub</a>
-                        <a href="https://www.linkedin.com/in/firmansyah-ilham/" class="social-link">LinkedIn</a>
-                        <a href="mailto:cecilymezzo@gmail.com" class="social-link">Email</a>
-                    </div>
-                </div>
-            </div>
-        </section>
+            <img src="/static/img/me.webp" alt="Photo of {{ name }}" width="489" height="312">
+            
+            <p class="dinkus" aria-hidden="true">* * *</p>
 
-        <!--
-        <section id="projects">
-            <div class="container">
-                <h2>Projects</h2>
+            <footer>
+                <p>&copy; 2026 {{ name }}. Faculty of Computer Science, Universitas Indonesia.</p>
+            </footer>
+        </main>
 
-                <div>
-                    <div>
-                        <h3><a href="https://cesilia.dev/">Pedantic Charcoal</a></h3>
-                        <p>A blog where I write about the Indonesian language, programming, and life.</p>
-                        <span>-- Since 2022</span>
-                    </div>
-
-                    <br>
-                    
-                    <div>
-                        <h3><a href="https://cesilia.dev/s/wordclock/">Indonesian Word Clock</a></h3>
-                        <p>A 12x12 matrix clock composed of Indonesian words.</p>
-                        <span>-- March 2025</span>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <h3><a href="https://github.com/RedStone576/crimson.js">Crimson.js</a></h3>
-                        <p>Asynchronous and type-safe Node.js library for interacting with the online stacker game, TETR.IO; made for bots (commonly, "tetris engine") utilizing websocket, msgpackr, and REST APIs.</p>
-                        <p>A "predecessors" to the more popular and well made library, <a href="https://github.com/halp1/triangle">Triangle.js</a>, as some would call it.</p>
-                        <span>-- 2023 - 2024</span>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <h3><a href="https://github.com/RedStone576/tetrio-minus">tetrio-minus</a></h3>
-                        <p>Client web extension for the stacker game tetr.io</p>
-                        <span>-- 2022 - 2023</span>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <h3><a href="https://csui.cesilia.dev/">Cecilia @ CSUI</a></h3>
-                        <p>Mostly for the stuff I authored while at CSUI.</p>
-                        <span>-- 2026</span>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <h3><a href="https://csui.cesilia.dev/ruangan">SINGANGGUR</a></h3>
-                        <p>Sistem Informasi Pengangguran - Find empty rooms at Fasilkom.</p>
-                        <span>-- 2026</span>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <h3>And much much more</h3>
-                        <p>Source: trust me, bro.</p>
-                        <span>-- Since born</span>
-                    </div>
-
-                    <br>
-
-                </div>
-            </div>
-        </section>
-        -->
-
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-        </div>
-    </footer>
-</body>
+        <script src="/static/js/life.js"></script>
+    </body>
 </html>

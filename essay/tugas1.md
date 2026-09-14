@@ -51,7 +51,7 @@ DB_USER=<database-user>
 DB_PASSWORD=<database-password>
 DB_HOST=<database-host>
 DB_PORT=<database-port>
-SCHEMA=public
+SCHEMA=tutorial
 ```
 
 Saya siapkan GitHub Actions agar setiap commit pada `master` akan di-mirror ke PWS. Jadi *copy* git URL, username, dan password project PWS lalu set GitHub Actions Secrets berikut:

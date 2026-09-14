@@ -21,6 +21,7 @@ https://ilham-naufal-portofolio.pws.cs.ui.ac.id
 
 ## Essay
 - Tugas 1: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas1.md)
+- Tugas 2: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas2.md)
 
 ## Credits
 - PBP Fasilkom Ganjil 26/27

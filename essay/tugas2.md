@@ -19,9 +19,14 @@ https://gist.github.com/RedStone576/90f5eb53acae3bc668d2ef3ea9205e3c
 - membuat Conway's Game of Life varian "immigration" dengan warna lucuuuuu sebagai background website
 - "Sistem Informasi" -> "06.00.12.01" agar terlihat teknis :3
 - downgrade versi Django ke 5.0.
+- mulai membuat unit test
 
 ## TODO
 - [ ] figure out how state works in django, karena setiap berganti halaman, background Game of Life saya kembali ke initial state.
+- [X] Setup Github Action untuk auto-deploy  
+- [ ] ~~Buat hamburger menu karena navbar pada display mobile terlihat sesak~~  
+- [ ] ~~Tambahkan section `Skills` / `Experiences`~~  
+
 
 ## [Pertanyaan Reflektif](https://pbp.cs.ui.ac.id/assignments/individual/tugas-2.html#pertanyaan-reflektif)
 

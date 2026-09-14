@@ -1,12 +1,14 @@
 # Tugas 2
 
+<img width="1366" height="422" alt="image" src="https://github.com/user-attachments/assets/b57f8442-e436-44a6-948b-9f181b6e0758" />
+
 ### Requirements
 - [Tugas 1](https://github.com/RedStone576/pbp-django/releases/tag/1.4.1)
 - [Tutorial 2](https://github.com/RedStone576/pbp-django/releases/tag/1.5.0)
 
 ## Credits
-- @faeiz-ff https://faeiz-faiza-myportofolio.pws.cs.ui.ac.id/
-- @fossyy https://bagas-aulia-myportofolio.pws.cs.ui.ac.id/
+- [@faeiz-ff](https://github.com/faeiz-ff) - https://faeiz-faiza-myportofolio.pws.cs.ui.ac.id/
+- [@fossyy](https://github.com/fossyy) - https://bagas-aulia-myportofolio.pws.cs.ui.ac.id/
 
 ## TL;DR
 
@@ -15,6 +17,7 @@
 - mengaktivasi admin panel untuk editing enteri database, saya buatkan guide untuk rekan-rekan mahasiswa juga:   
 https://gist.github.com/RedStone576/90f5eb53acae3bc668d2ef3ea9205e3c
 - membuat Conway's Game of Life varian "immigration" dengan warna lucuuuuu sebagai background website
+- "Sistem Informasi" -> "06.00.12.01" agar terlihat teknis :3
 - downgrade versi Django ke 5.0.
 
 ## TODO

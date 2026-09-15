@@ -35,11 +35,23 @@
                 <h1>{{ name }}</h1>
                 
                 <nav aria-label="Main navigation">
-                    <p>{{ npm }} • {{ study_program_kd }}</p>
-                    <a class="nav_selected" href="{% url 'main:show_main' %}">[About]</a>
-                    <a href="{% url 'main:show_experience' %}">[Experience]</a>
-                    <a href="{% url 'main:show_education' %}">[Education]</a>
-                    <a href="{% url 'main:show_projects' %}">[Projects]</a>
+                    <p>{{ npm }} • {{ study_program_kd }} • {{ role }}</p>
+
+                    <a class="{% if request.resolver_match.url_name == 'show_main' %}nav_selected{% endif %}"
+                        href="{% url 'main:show_main' %}">[About]
+                    </a>
+
+                    <a class="{% if request.resolver_match.url_name == 'show_experience' %}nav_selected{% endif %}"
+                        href="{% url 'main:show_experience' %}">[Experience]
+                    </a>
+
+                    <a class="{% if request.resolver_match.url_name == 'show_education' %}nav_selected{% endif %}"
+                        href="{% url 'main:show_education' %}">[Education]
+                    </a>
+
+                    <a class="{% if request.resolver_match.url_name == 'show_projects' %}nav_selected{% endif %}"
+                        href="{% url 'main:show_projects' %}">[Projects]
+                    </a>
                 </nav>
             </header>
 

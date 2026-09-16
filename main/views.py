@@ -1,7 +1,11 @@
 from django.contrib import messages
-from django.core import serializers
-from django.http import HttpResponse
+# from django.core import serializers
+# from django.http import HttpResponse just so i dont forgor
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_http_methods
+
+# nice read: https://docs.djangoproject.com/en/5.0/_modules/django/views/decorators/http/#require_http_methods
 
 from main.models import Experience, Education, Project
 from main.forms import ExperienceForm, EducationForm, ProjectForm
@@ -13,6 +17,18 @@ MY_INFO = {
     "study_program_kd": "06.00.12.01",
     "role": "Insinyur Perangkat Lunak",
 }
+
+###
+
+MODELS = {
+    "experience": (Experience, ExperienceForm),
+    "education": (Education, EducationForm),
+    "projects": (Project, ProjectForm),
+}
+
+def get_model_form(item_type):
+    model, form = MODELS[item_type]
+    return model, form
 
 ###
 
@@ -32,83 +48,88 @@ def show_main(request):
     
     return render(request, "index.html", MY_INFO | context)
 
+###
 
-def show_experience(request):
-    context = {
-        "experience_list": Experience.objects.all(),
-    }
-    
-    return render(request, "experience.html", MY_INFO | context)
-
-
-def show_education(request):
-    context = {
-        "education_list": Education.objects.all(),
-    }
-    
-    return render(request, "education.html", MY_INFO | context)
-
-
-def show_projects(request):
-    context = {
-        "project_list": Project.objects.all(),
-    }
-    
-    return render(request, "projects.html", MY_INFO | context)
+def show_list(request, item_type):
+    Model, _ = get_model_form(item_type)
+    context = {f"{item_type}_list": Model.objects.all()}
+    return render(request, f"{item_type}.html", MY_INFO | context)
 
 ###
 
-def create_experience(request):
-    form = ExperienceForm(request.POST or None)
- 
+def form_view(request, item_type):
+    Model, FormClass = get_model_form(item_type)
+    
+    ## dunno how to create a headless block in python, so this comments will do
+    _pk = request.GET.get("id")
+    
+    instance = None
+    
+    if _pk:
+        instance = get_object_or_404(Model, id=_pk)
+    ##
+    
+    form = FormClass(request.POST or None, instance=instance)
+    
+    title = f"Edit {item_type}" if instance else f"Add {item_type}"
+    redir_name = f"show_{item_type}"
+    
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Experience added successfully!")
-        return redirect("main:show_experience")
- 
-    context = {
-        "form": form,
-    }
+        messages.success(request, f"{item_type.capitalize()} added successfully!")
+        return redirect(f"main:{redir_name}")
     
-    return render(request, "experience_create.html", MY_INFO | context)
- 
- 
-def create_education(request):
-    form = EducationForm(request.POST or None)
- 
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Education added successfully!")
-        return redirect("main:show_education")
- 
-    context = {
+    return render(request, "base_create.html", MY_INFO | {
         "form": form,
-    }
+        "title": title
+    }) # i will fix the redirect later zzz
+
+### ok so this one will handle ALL the cruds request, i hope its general enough but we'll see 
+### its really really messy rn but i'll clean it later, in like a year or two LOL
+### item_type: experience | education | projects
+### update with `?id=somethingidk`
+
+@require_http_methods(["GET", "POST", "PUT", "DELETE"])
+def api_view(request, item_type):
+    Model, FormClass = get_model_form(item_type)
     
-    return render(request, "education_create.html", MY_INFO | context)
-
-def create_projects(request):
-    form = ProjectForm(request.POST or None)
-
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Proyek baru berhasil ditambahkan!")
-        return redirect("main:show_projects")
-
-    context = {
-        "form": form,
-    }
+    if request.method == "GET":
+        items = Model.objects.all()
+        
+        return JsonResponse({
+            "items": [{
+                "id": str(obj.id),
+                **{f.name: str(getattr(obj, f.name)) for f in Model._meta.fields if f.name != "id"}
+            } for obj in items]
+        })
     
-    return render(request, "projects_create.html", MY_INFO | context)
+    if request.method == "POST":
+        form = FormClass(request.POST)
+        
+        if form.is_valid():
+            obj = form.save()
+            return JsonResponse({"id": str(obj.id), "success": True}, status=201)
+        
+        return JsonResponse({"errors": form.errors}, status=400)
 
-###
+    ##
+    _pk = request.GET.get("id")
+    if not _pk:
+        return JsonResponse({"error": "id required"}, status=400)
+    
+    obj = get_object_or_404(Model, id=_pk)
+    ##
+    
+    if request.method == "PUT":
+        form = FormClass(request.POST, instance=obj)
+        
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"success": True})
+        
+        return JsonResponse({"errors": form.errors}, status=400)
 
-def get_projects_json(request):
-    title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.all()
-
-    if title_query:
-        projects = projects.filter(title__icontains=title_query)
-
-    projects_json = serializers.serialize("json", projects)
-    return HttpResponse(projects_json, content_type="application/json")
+    # i love django man
+    # if request.method == "DELETE":
+    #     obj.delete()
+    #     return JsonResponse({"success": True})

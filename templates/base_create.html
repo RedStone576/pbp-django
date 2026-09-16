@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block meta %}
-    <title>{{ name }} - Add Education</title>
+    <title>{{ name }} - {{ title }}</title>
 {% endblock meta %}
 
 {% block content %}
     <section>
-        <h2>Add New Education</h2>
+        <h2>{{ title }}</h2>
 
-        <form method="post" action="{% url 'main:create_education' %}">
+        <form method="post">
             {% csrf_token %}
 
             {% for field in form %}
@@ -23,8 +23,8 @@
                 </p>
             {% endfor %}
 
-            <button type="submit">Add Education</button>
-            <a href="{% url 'main:show_education' %}">Nevermind</a>
+            <button type="submit">Save</button>
+            <a href="/">Nevermind</a>
         </form>
     </section>
 {% endblock content %}

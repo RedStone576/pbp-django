@@ -128,7 +128,8 @@ def api_view(request, item_type):
             return JsonResponse({"success": True})
         
         return JsonResponse({"errors": form.errors}, status=400)
-    
-    if request.method == "DELETE":
-        obj.delete()
-        return JsonResponse({"success": True})
+
+    # i love django man
+    # if request.method == "DELETE":
+    #     obj.delete()
+    #     return JsonResponse({"success": True})

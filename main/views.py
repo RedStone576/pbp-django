@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+# nice read: https://docs.djangoproject.com/en/5.0/_modules/django/views/decorators/http/#require_http_methods
+
 from main.models import Experience, Education, Project
 from main.forms import ExperienceForm, EducationForm, ProjectForm
 
@@ -69,13 +71,18 @@ def form_view(request, item_type):
     
     form = FormClass(request.POST or None, instance=instance)
     
+    title = f"Edit {item_type}" if instance else f"Add {item_type}"
+    redir_name = f"show_{item_type}"
+    
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, f"{item_type.capitalize()} added successfully!")
-        return redirect(f"main:show_{item_type}")
+        return redirect(f"main:{redir_name}")
     
-    return render(request, f"{item_type}_create.html", MY_INFO | {"form": form})
-
+    return render(request, "base_create.html", MY_INFO | {
+        "form": form,
+        "title": title
+    }) # i will fix the redirect later zzz
 
 ### ok so this one will handle ALL the cruds request, i hope its general enough but we'll see 
 ### its really really messy rn but i'll clean it later, in like a year or two LOL

@@ -1,6 +1,7 @@
 from django.contrib import messages
 # from django.core import serializers
-# from django.http import HttpResponse
+# from django.http import HttpResponse just so i dont forgor
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 

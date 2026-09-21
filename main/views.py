@@ -1,7 +1,6 @@
 from django.contrib import messages
-# from django.core import serializers
-# from django.http import HttpResponse just so i dont forgor
-from django.http import JsonResponse
+from django.core import serializers
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -84,6 +83,24 @@ def form_view(request, item_type):
         "title": title
     }) # i will fix the redirect later zzz
 
+# akan ada waktunya manusia akan sadar bahwa semuanya eventually jadi POST request xixixixi
+def delete_item(request, item_type):
+    if request.method != "POST":
+        return redirect(f"main:show_{item_type}")
+        
+    Model, _ = get_model_form(item_type)
+    _pk = request.GET.get("id")
+    
+    if not _pk:
+        return redirect(f"main:show_{item_type}")
+        
+    obj = get_object_or_404(Model, id=_pk)
+    obj.delete()
+    
+    messages.success(request, f"{item_type.capitalize()} deleted successfully!")
+    
+    return redirect(f"main:show_{item_type}")
+
 ### ok so this one will handle ALL the cruds request, i hope its general enough but we'll see 
 ### its really really messy rn but i'll clean it later, in like a year or two LOL
 ### item_type: experience | education | projects
@@ -96,12 +113,8 @@ def api_view(request, item_type):
     if request.method == "GET":
         items = Model.objects.all()
         
-        return JsonResponse({
-            "items": [{
-                "id": str(obj.id),
-                **{f.name: str(getattr(obj, f.name)) for f in Model._meta.fields if f.name != "id"}
-            } for obj in items]
-        })
+        items_json = serializers.serialize("json", items)
+        return HttpResponse(items_json, content_type="application/json")
     
     if request.method == "POST":
         form = FormClass(request.POST)
@@ -130,6 +143,6 @@ def api_view(request, item_type):
         return JsonResponse({"errors": form.errors}, status=400)
 
     # i love django man
-    # if request.method == "DELETE":
-    #     obj.delete()
-    #     return JsonResponse({"success": True})
+    if request.method == "DELETE":
+        obj.delete()
+        return JsonResponse({"success": True})

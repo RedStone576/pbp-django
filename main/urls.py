@@ -1,6 +1,6 @@
 from django.urls import path
 
-from main.views import show_main, show_list, form_view, api_view
+from main.views import show_main, show_list, form_view, api_view, delete_item
 
 app_name = "main"
 
@@ -14,6 +14,10 @@ urlpatterns = [
     path("experience/create/", form_view, {"item_type": "experience"}, name="create_experience"),
     path("education/create/",  form_view, {"item_type": "education"},  name="create_education"),
     path("projects/create/",   form_view, {"item_type": "projects"},   name="create_project"),
+
+    path("experience/delete/", delete_item, {"item_type": "experience"}, name="delete_experience"),
+    path("education/delete/",  delete_item, {"item_type": "education"},  name="delete_education"),
+    path("projects/delete/",   delete_item, {"item_type": "projects"},   name="delete_project"),
     
     path("api/experience/", api_view, {"item_type": "experience"}),
     path("api/education/",  api_view, {"item_type": "education"}),

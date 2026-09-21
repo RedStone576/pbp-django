@@ -8,19 +8,21 @@
 {% block content %}
     <section aria-labelledby="experience">
         <h2 id="experience">Experience</h2>
+        <a href="{% url 'main:create_experience' %}"><button>Add Experience</button></a>
 
         {% if experience_list %}
             <ul>
                 {% for experience in experience_list %}
                     <li>
-                        <!-- {% if experience.thumbnail %} -->
-                        <!--     <img src="{{ experience.thumbnail }}" alt="{{ experience.title }}"> -->
-                        <!-- {% endif %} -->
-
                         <h3>{{ experience.title }} • {{ experience.get_category_display }}</h3>
 
-                        <a href="/experience/create/?id={{ experience.id }}"><button>Edit</button></a>
-                        <!-- <button onclick="deleteEntry('{{ experience.id }}', 'experience')">Delete</button> -->
+                        <div>
+                            <a href="{% url 'main:create_experience' %}?id={{ experience.id }}"><button>Edit</button></a>
+                            <form method="post" action="{% url 'main:delete_experience' %}?id={{ experience.id }}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Delete this experience?');">Delete</button>
+                            </form>
+                        </div>
 
                         {% if experience.started_at %}
                             <time datetime="{{ experience.started_at|date:'c' }}">

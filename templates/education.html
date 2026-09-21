@@ -7,6 +7,7 @@
 {% block content %}
     <section aria-labelledby="education">
         <h2 id="education">Education</h2>
+        <a href="{% url 'main:create_education' %}"><button>Add Education</button></a>
 
         {% if education_list %}
             <ul>
@@ -14,6 +15,14 @@
                     <li>
                         <h3>{{ education.program }}, {{ education.field }}</h3>
                         <span>{{ education.institution }}</span>
+
+                        <div>
+                            <a href="{% url 'main:create_education' %}?id={{ education.id }}"><button>Edit</button></a>
+                            <form method="post" action="{% url 'main:delete_education' %}?id={{ education.id }}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Delete this education?');">Delete</button>
+                            </form>
+                        </div>
 
                         <br>
 

@@ -7,6 +7,8 @@
 {% block content %}
     <section aria-labelledby="projects">
         <h2 id="projects">Projects</h2>
+        
+        <a href="{% url 'main:create_project' %}"><button>Add Project</button></a>
 
         {% if projects_list %}
             <ul>
@@ -31,7 +33,14 @@
                             <a href="{{ project.link }}">{{ project.link }}</a>
                         {% endif %}
 
-                        
+                        <div>
+                            <a href="{% url 'main:create_project' %}?id={{ project.id }}"><button>Edit</button></a>
+                            
+                            <form method="post" action="{% url 'main:delete_project' %}?id={{ project.id }}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Delete this project?');">Delete</button>
+                            </form>
+                        </div>
                     </li>
                 {% endfor %}
             </ul>

@@ -3,6 +3,10 @@ from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
+
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
 import json
 import requests
 
@@ -166,3 +170,37 @@ def api_view(request, item_type):
     if request.method == "DELETE":
         obj.delete()
         return JsonResponse({"success": True})
+
+
+def register(request):
+    form = UserCreationForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Account created successfully. Please log in.")
+        
+        return redirect("main:login")
+
+    context = {
+        "form": form,
+    }
+
+    return render(request, "register.html", MY_INFO | context)
+
+
+def login_user(request):
+    form = AuthenticationForm(request, data=request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        login(request, form.get_user())
+        return redirect("main:show_main")
+
+    context = {
+        "form": form,
+    }
+
+    return render(request, "login.html", MY_INFO | context)
+
+def logout_user(request):
+    logout(request)
+    return redirect("main:show_main")

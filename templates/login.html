@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block meta %}
+    <title>{{ name }} - Login</title>
+{% endblock meta %}
+
+{% block content %}
+    <section aria-labelledby="login-form">
+        <h2 id="login-form">Login</h2>
+
+        {% for message in messages %}
+            <p><strong>{{ message }}</strong></p>
+        {% endfor %}
+
+        <form method="post" action="{% url 'main:login' %}">
+            {% csrf_token %}
+
+            {% for error in form.non_field_errors %}
+                <p><strong>{{ error }}</strong></p>
+            {% endfor %}
+
+            {% for field in form %}
+                <p>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label><br>
+                    {{ field }}
+
+                    {% for error in field.errors %}
+                        <br>
+                        <strong>{{ error }}</strong>
+                    {% endfor %}
+                </p>
+            {% endfor %}
+
+            <button type="submit">Login</button>
+            <a href="{% url 'main:register' %}">No account yet? Register here.</a>
+        </form>
+    </section>
+{% endblock content %}

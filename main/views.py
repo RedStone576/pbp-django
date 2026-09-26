@@ -3,6 +3,8 @@ from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
+import json
+import requests
 
 # nice read: https://docs.djangoproject.com/en/5.0/_modules/django/views/decorators/http/#require_http_methods
 
@@ -50,8 +52,26 @@ def show_main(request):
 ###
 
 def show_list(request, item_type):
-    Model, _ = get_model_form(item_type)
-    context = {f"{item_type}_list": Model.objects.all()}
+    api_url = f"{request.scheme}://{request.get_host()}/api/{item_type}/"
+    
+    try:
+        response = requests.get(api_url, cookies=request.COOKIES, timeout=10)
+        response.raise_for_status()
+        
+        raw_json = response.json()
+        
+        if isinstance(raw_json, str):
+            items = json.loads(raw_json)
+        else:
+            items = raw_json
+        
+        parsed_items = [{"id": item["pk"], **item["fields"]} for item in items]
+        
+    except requests.RequestException as e:
+        print(f"Error: {e}")
+        parsed_items = []
+        
+    context = {f"{item_type}_list": parsed_items}
     return render(request, f"{item_type}.html", MY_INFO | context)
 
 ###

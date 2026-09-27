@@ -1,0 +1,23 @@
+{
+  "name": "pbp-django",
+  "version": "0.0.1",
+  "description": "> [!NOTE]\r > Repository for the mandatory course \"Platform-Based Programming (CSGE602022)\"  \r > Faculty of Computer Science, Universitas Indonesia.\r > \r > Ilham Firmansyah ([@RedStone576](https://github.com/redstone576)) - 2506532643, 06.00.12.01 - PBP E",
+  "homepage": "https://github.com/RedStone576/pbp-django#readme",
+  "bugs": {
+    "url": "https://github.com/RedStone576/pbp-django/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RedStone576/pbp-django.git"
+  },
+  "license": "Artistic-2.0",
+  "author": "Cecilia Firmansyah",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+
+        "rootDir": "./static/ts",
+        "outDir": "./static/js",
+
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+
+        "removeComments": true
+    },
+
+    "include": [
+        "./static/ts/**/*"
+    ],
+
+    "exclude": [
+        "./static/js/",
+        "./node_modules/"
+    ]
+}

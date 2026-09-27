@@ -6,22 +6,27 @@ from django.views.decorators.http import require_http_methods
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 
 import json
 import requests
+import datetime
 
 # nice read: https://docs.djangoproject.com/en/5.0/_modules/django/views/decorators/http/#require_http_methods
 
 from main.models import Experience, Education, Project
 from main.forms import ExperienceForm, EducationForm, ProjectForm
 
-MY_INFO = {
-    "name": "Ilham Firmansyah", 
-    "npm": "2506532643",
-    "study_program": "Sistem Informasi",
-    "study_program_kd": "06.00.12.01",
-    "role": "Insinyur Perangkat Lunak",
-}
+def MY_INFO(request):
+    return {
+        "name": "Ilham Firmansyah", 
+        "npm": "2506532643",
+        "study_program": "Sistem Informasi",
+        "study_program_kd": "06.00.12.01",
+        "role": "Insinyur Perangkat Lunak",
+        "last_login": request.COOKIES.get("last_login", "No active login session / Cookie not found")
+    }
 
 ###
 
@@ -51,7 +56,7 @@ def show_main(request):
         ),
     }
     
-    return render(request, "index.html", MY_INFO | context)
+    return render(request, "index.html", MY_INFO(request) | context)
 
 ###
 
@@ -69,18 +74,27 @@ def show_list(request, item_type):
         else:
             items = raw_json
         
-        parsed_items = [{"id": item["pk"], **item["fields"]} for item in items]
+        parsed_items = []
+        for item in items:
+            fields = item["fields"]
+            if "starred_by" in fields:
+                fields["starred_by"] = [x[0] for x in fields["starred_by"]]
+            parsed_items.append({"id": item["pk"], **fields})
         
     except requests.RequestException as e:
         print(f"Error: {e}")
         parsed_items = []
         
     context = {f"{item_type}_list": parsed_items}
-    return render(request, f"{item_type}.html", MY_INFO | context)
+    return render(request, f"{item_type}.html", MY_INFO(request) | context)
 
 ###
 
+@login_required(login_url="/super/login/")
 def form_view(request, item_type):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     Model, FormClass = get_model_form(item_type)
     
     ## dunno how to create a headless block in python, so this comments will do
@@ -102,13 +116,17 @@ def form_view(request, item_type):
         messages.success(request, f"{item_type.capitalize()} added successfully!")
         return redirect(f"main:{redir_name}")
     
-    return render(request, "base_create.html", MY_INFO | {
+    return render(request, "base_create.html", MY_INFO(request) | {
         "form": form,
         "title": title
     }) # i will fix the redirect later zzz
 
 # akan ada waktunya manusia akan sadar bahwa semuanya eventually jadi POST request xixixixi
+@login_required(login_url="/super/login/")
 def delete_item(request, item_type):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     if request.method != "POST":
         return redirect(f"main:show_{item_type}")
         
@@ -137,7 +155,7 @@ def api_view(request, item_type):
     if request.method == "GET":
         items = Model.objects.all()
         
-        items_json = serializers.serialize("json", items)
+        items_json = serializers.serialize("json", items, use_natural_foreign_keys=True)
         return HttpResponse(items_json, content_type="application/json")
     
     if request.method == "POST":
@@ -185,22 +203,43 @@ def register(request):
         "form": form,
     }
 
-    return render(request, "register.html", MY_INFO | context)
-
+    return render(request, "register.html", MY_INFO(request) | context)
 
 def login_user(request):
     form = AuthenticationForm(request, data=request.POST or None)
 
     if request.method == "POST" and form.is_valid():
-        login(request, form.get_user())
-        return redirect("main:show_main")
+        user = form.get_user()
+        
+        login(request, user)
+        
+        response = redirect("main:show_main")
+        response.set_cookie("last_login", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        
+        return response
 
     context = {
         "form": form,
     }
 
-    return render(request, "login.html", MY_INFO | context)
+    return render(request, "login.html", MY_INFO(request) | context)
 
 def logout_user(request):
     logout(request)
-    return redirect("main:show_main")
+    
+    response = redirect("main:show_main")
+    response.delete_cookie("last_login")
+    
+    return response
+
+@login_required(login_url="/super/login/")
+@require_http_methods(["POST"])
+def toggle_star(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.user in project.starred_by.all():
+        project.starred_by.remove(request.user)
+    else:
+        project.starred_by.add(request.user)
+
+    return redirect("main:show_projects")

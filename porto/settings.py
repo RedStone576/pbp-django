@@ -67,10 +67,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'porto.urls'
 
+# https://docs.djangoproject.com/en/5.0/ref/settings/#std-setting-TEMPLATES-DIRS
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [
+            BASE_DIR / "templates",
+            BASE_DIR / "templates" / "auth",
+            BASE_DIR / "templates" / "layouts",
+            BASE_DIR / "templates" / "main"
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

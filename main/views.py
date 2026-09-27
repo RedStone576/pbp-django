@@ -18,13 +18,16 @@ import datetime
 from main.models import Experience, Education, Project
 from main.forms import ExperienceForm, EducationForm, ProjectForm
 
-def MY_INFO(request):
+def GLOBAL_CONTEXT(request):
     return {
         "name": "Ilham Firmansyah", 
         "npm": "2506532643",
         "study_program": "Sistem Informasi",
         "study_program_kd": "06.00.12.01",
         "role": "Insinyur Perangkat Lunak",
+
+        "is_editor": request.user.is_authenticated and request.user.groups.filter(name="Editor").exists(),
+        "is_superuser": request.user.is_superuser,
         "last_login": request.COOKIES.get("last_login", "No active login session / Cookie not found")
     }
 
@@ -56,7 +59,7 @@ def show_main(request):
         ),
     }
     
-    return render(request, "index.html", MY_INFO(request) | context)
+    return render(request, "index.html", GLOBAL_CONTEXT(request) | context)
 
 ###
 
@@ -86,19 +89,24 @@ def show_list(request, item_type):
         parsed_items = []
         
     context = {f"{item_type}_list": parsed_items}
-    return render(request, f"{item_type}.html", MY_INFO(request) | context)
+    return render(request, f"{item_type}.html", GLOBAL_CONTEXT(request) | context)
 
 ###
 
 @login_required(login_url="/super/login/")
 def form_view(request, item_type):
-    if not request.user.is_superuser:
-        raise PermissionDenied
+    _pk = request.GET.get("id")
+
+    if _pk:
+        # ni kalo editing
+        if not (request.user.is_superuser or request.user.groups.filter(name="Editor").exists()):
+            raise PermissionDenied
+    else:
+        # and this one create object baru anjayyyy
+        if not request.user.is_superuser:
+            raise PermissionDenied
 
     Model, FormClass = get_model_form(item_type)
-    
-    ## dunno how to create a headless block in python, so this comments will do
-    _pk = request.GET.get("id")
     
     instance = None
     
@@ -116,7 +124,7 @@ def form_view(request, item_type):
         messages.success(request, f"{item_type.capitalize()} added successfully!")
         return redirect(f"main:{redir_name}")
     
-    return render(request, "base_create.html", MY_INFO(request) | {
+    return render(request, "base_create.html", GLOBAL_CONTEXT(request) | {
         "form": form,
         "title": title
     }) # i will fix the redirect later zzz
@@ -159,8 +167,10 @@ def api_view(request, item_type):
         return HttpResponse(items_json, content_type="application/json")
     
     if request.method == "POST":
+        if not (request.user.is_authenticated and request.user.is_superuser):
+            return JsonResponse({"error": "GO AWAY !!!"}, status=403)
+            
         form = FormClass(request.POST)
-        
         if form.is_valid():
             obj = form.save()
             return JsonResponse({"id": str(obj.id), "success": True}, status=201)
@@ -176,8 +186,10 @@ def api_view(request, item_type):
     ##
     
     if request.method == "PUT":
+        if not (request.user.is_authenticated and (request.user.is_superuser or request.user.groups.filter(name="Editor").exists())):
+            return JsonResponse({"error": "GO AWAY !!!"}, status=403)
+            
         form = FormClass(request.POST, instance=obj)
-        
         if form.is_valid():
             form.save()
             return JsonResponse({"success": True})
@@ -186,6 +198,9 @@ def api_view(request, item_type):
 
     # i love django man
     if request.method == "DELETE":
+        if not (request.user.is_authenticated and request.user.is_superuser):
+            return JsonResponse({"error": "GO AWAY !!!"}, status=403)
+            
         obj.delete()
         return JsonResponse({"success": True})
 
@@ -203,7 +218,7 @@ def register(request):
         "form": form,
     }
 
-    return render(request, "register.html", MY_INFO(request) | context)
+    return render(request, "register.html", GLOBAL_CONTEXT(request) | context)
 
 def login_user(request):
     form = AuthenticationForm(request, data=request.POST or None)
@@ -222,7 +237,7 @@ def login_user(request):
         "form": form,
     }
 
-    return render(request, "login.html", MY_INFO(request) | context)
+    return render(request, "login.html", GLOBAL_CONTEXT(request) | context)
 
 def logout_user(request):
     logout(request)

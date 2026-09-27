@@ -17,14 +17,15 @@
                 {% for project in projects_list %}
                     <li>
                         <h3>
-                            {{ project.title }} ({{ project.starred_by|length }} flowers),
+                            {{ project.title }},
                         
                             {% if project.created_at %}
                                 <time datetime="{{ project.created_at|date:'c' }}">
                                     {{ project.created_at|date:"F Y" }}
                                 </time>
                             {% endif %}
-                        
+                            
+                            ({{ project.starred_by|length }} flowers)
                         </h3>
                         
                         <span>{{ project.description }}</span>

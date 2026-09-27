@@ -77,11 +77,19 @@ def show_list(request, item_type):
         else:
             items = raw_json
         
+        from django.utils.dateparse import parse_datetime
+
         parsed_items = []
         for item in items:
             fields = item["fields"]
+            
             if "starred_by" in fields:
                 fields["starred_by"] = [x[0] for x in fields["starred_by"]]
+                
+            for date_field in ["created_at", "started_at", "ended_at"]:
+                if fields.get(date_field):
+                    fields[date_field] = parse_datetime(fields[date_field])
+                    
             parsed_items.append({"id": item["pk"], **fields})
         
     except requests.RequestException as e:

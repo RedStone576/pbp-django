@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # just for a while :P
-from .models import Experience, Education, Project
+from .models import Education, Experience, Project
 
 admin.site.register(Experience)
 admin.site.register(Education)

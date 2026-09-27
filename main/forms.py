@@ -1,13 +1,13 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput, Select, DateTimeInput
+from django.forms import DateTimeInput, ModelForm, Select, Textarea, TextInput, URLInput
 
-from main.models import Experience, Education, Project
+from main.models import Education, Experience, Project
 
 
 class ExperienceForm(ModelForm):
     class Meta:
         model = Experience
         fields = ["title", "description", "category", "thumbnail", "started_at", "ended_at"]
-        
+
         labels = {
             "title": "Title",
             "description": "Description",
@@ -16,7 +16,7 @@ class ExperienceForm(ModelForm):
             "started_at": "Start date",
             "ended_at": "End date",
         }
-        
+
         widgets = {
             "title": TextInput(attrs={"placeholder": "Software Engineer", "maxlength": 255}),
             "description": Textarea(attrs={"placeholder": "Describe here", "rows": 3}),
@@ -31,14 +31,14 @@ class EducationForm(ModelForm):
     class Meta:
         model = Education
         fields = ["institution", "program", "field", "started_at"]
-        
+
         labels = {
             "institution": "Institution",
             "program": "Program",
             "field": "Field of study",
             "started_at": "Start date",
         }
-        
+
         widgets = {
             "institution": TextInput(attrs={"placeholder": "Universitas Indonesia", "maxlength": 255}),
             "program": TextInput(attrs={"placeholder": "Bachelor of Computer Science", "maxlength": 255}),
@@ -51,14 +51,14 @@ class ProjectForm(ModelForm):
     class Meta:
         model = Project
         fields = ["title", "description", "link", "created_at"]
-        
+
         labels = {
             "title": "Project Name",
             "description": "Description",
             "link": "Project URL",
             "created_at": "Created date",
         }
-        
+
         widgets = {
             "title": TextInput(attrs={"placeholder": "Website", "maxlength": 255}),
             "description": Textarea(attrs={"placeholder": "Describe here", "rows": 3}),

@@ -1,0 +1,22 @@
+[lint]
+# Select rules to run:
+# E: pycodestyle errors
+# F: pyflakes
+# W: pycodestyle warnings
+# I: isort (import sorting)
+# UP: pyupgrade
+# B: flake8-bugbear
+# SIM: flake8-simplify
+# C4: flake8-comprehensions
+# RUF: Ruff-specific rules
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "C4", "RUF"]
+ignore = ["E501"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"**/migrations/*" = ["E", "F", "W", "I", "UP", "B", "SIM", "C4", "RUF"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

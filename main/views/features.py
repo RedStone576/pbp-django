@@ -1,7 +1,9 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
+
 from main.models import Project
+
 
 @login_required(login_url="/super/login/")
 @require_http_methods(["POST"])

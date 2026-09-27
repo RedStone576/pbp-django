@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
-from django.utils import timezone
 
-from main.models import Experience, Education, Project
+from main.models import Education, Experience, Project
+
 
 # i just copied all this from `python manage.py dumpdata`
 class MainTest(TestCase):

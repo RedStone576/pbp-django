@@ -1,9 +1,10 @@
-from main.models import Experience, Education, Project
-from main.forms import ExperienceForm, EducationForm, ProjectForm
+from main.forms import EducationForm, ExperienceForm, ProjectForm
+from main.models import Education, Experience, Project
+
 
 def GLOBAL_CONTEXT(request):
     return {
-        "name": "Ilham Firmansyah", 
+        "name": "Ilham Firmansyah",
         "npm": "2506532643",
         "study_program": "Sistem Informasi",
         "study_program_kd": "06.00.12.01",

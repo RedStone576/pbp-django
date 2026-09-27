@@ -16,16 +16,20 @@
             <ul>
                 {% for experience in experience_list %}
                     <li>
-                        <h3>{{ experience.title }} • {{ experience.get_category_display }}</h3>
+                        {% if experience.thumbnail %}
+                            <img src="{{ experience.thumbnail }}" alt="{{ experience.title }} thumbnail" style="max-width: 200px; display: block; margin-bottom: 10px;">
+                        {% endif %}
+                        
+                        <h3>{{ experience.title }} • {{ experience.category|title }}</h3>
 
-                        {% if user.is_superuser %}
-                        <div>
+                        {% if is_superuser or is_editor %}
                             <a href="{% url 'main:create_experience' %}?id={{ experience.id }}"><button>Edit</button></a>
+                        {% endif %}
+                        {% if is_superuser %}
                             <form method="post" action="{% url 'main:delete_experience' %}?id={{ experience.id }}" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" onclick="return confirm('Delete this experience?');">Delete</button>
                             </form>
-                        </div>
                         {% endif %}
 
                         {% if experience.started_at %}

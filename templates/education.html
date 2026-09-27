@@ -18,14 +18,14 @@
                         <h3>{{ education.program }}, {{ education.field }}</h3>
                         <span>{{ education.institution }}</span>
 
-                        {% if user.is_superuser %}
-                        <div>
+                        {% if is_superuser or is_editor %}
                             <a href="{% url 'main:create_education' %}?id={{ education.id }}"><button>Edit</button></a>
+                        {% endif %}
+                        {% if is_superuser %}
                             <form method="post" action="{% url 'main:delete_education' %}?id={{ education.id }}" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" onclick="return confirm('Delete this education?');">Delete</button>
                             </form>
-                        </div>
                         {% endif %}
 
                         <br>

@@ -53,15 +53,28 @@
                         href="{% url 'main:show_projects' %}">[Projects]
                     </a>
 
+                    <br>
+                
                     {% if user.is_authenticated %}
-                        <span class="nav-user">{{ user.username }}</span>
-                        <a href="{% url 'main:logout' %}">Logout</a>
+                        <span>{{ last_login }}</span> 
+                        •
+                        <span>
+                            Logged in as <strong>{{ user.username }}</strong> {% if is_superuser %}(Superuser){% elif is_editor %}(Editor){% endif %}
+                        </span>
+                        
+                        <br>
+                        
+                        <a href="{% url 'main:logout' %}">&ltLogout&gt</a>
                     {% else %}
-                        <a href="{% url 'main:login' %}">Login</a>
-                        <a href="{% url 'main:register' %}">Register</a>
+                        <span>{{ last_login }}</span>
+
+                        <br>
+                    
+                        <a href="{% url 'main:login' %}">&ltLogin&gt</a>
+                        <a href="{% url 'main:register' %}">&ltRegister&gt</a>
                     {% endif %}
 
-                    <p>{{ last_login }}</p>
+                    <br>
                 </nav>
             </header>
 

@@ -8,7 +8,9 @@
 {% block content %}
     <section aria-labelledby="experience">
         <h2 id="experience">Experience</h2>
+        {% if user.is_superuser %}
         <a href="{% url 'main:create_experience' %}"><button>Add Experience</button></a>
+        {% endif %}
 
         {% if experience_list %}
             <ul>
@@ -16,6 +18,7 @@
                     <li>
                         <h3>{{ experience.title }} • {{ experience.get_category_display }}</h3>
 
+                        {% if user.is_superuser %}
                         <div>
                             <a href="{% url 'main:create_experience' %}?id={{ experience.id }}"><button>Edit</button></a>
                             <form method="post" action="{% url 'main:delete_experience' %}?id={{ experience.id }}" style="display:inline;">
@@ -23,6 +26,7 @@
                                 <button type="submit" onclick="return confirm('Delete this experience?');">Delete</button>
                             </form>
                         </div>
+                        {% endif %}
 
                         {% if experience.started_at %}
                             <time datetime="{{ experience.started_at|date:'c' }}">

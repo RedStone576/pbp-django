@@ -142,3 +142,33 @@ img {
 
     image-rendering: pixelated;
 }
+
+
+
+
+
+.toast-component {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    margin: 0;
+    padding: 10px 15px;
+    background: var(--background);
+    border: 1px solid var(--foreground);
+    display: none;
+    z-index: 100;
+    transition: opacity 0.3s;
+}
+
+.toast-component:popover-open {
+    display: block;
+}
+
+.toast-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toast-show {
+    opacity: 1;
+}

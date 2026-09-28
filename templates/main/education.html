@@ -14,6 +14,10 @@
             {% endif %}
         </div>
 
+        <p id="loading" style="display: none; color: var(--muted);">Loading...</p>
+        <p id="error" style="display: none; color: red;">Failed to load data. Try reloading.</p>
+        <p id="empty" style="display: none; color: var(--muted);">Belum ada data yang ditambahkan.</p>
+
         <ul id="grid"
             data-api-url="{% url 'main:api_education' %}"
             data-create-url="{% url 'main:create_education' %}"

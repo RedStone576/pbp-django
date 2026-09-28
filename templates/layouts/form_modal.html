@@ -1,0 +1,11 @@
+<div id="add-modal" popover="auto" class="form-modal">
+    <h2>Add Entry</h2>
+    <form id="add-form" method="post" action="{% url action_url %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-modal-actions">
+            <button type="submit">Submit</button>
+            <button type="button" popovertarget="add-modal" popovertargetaction="hide">Cancel</button>
+        </div>
+    </form>
+</div>

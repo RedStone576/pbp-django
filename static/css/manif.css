@@ -142,3 +142,54 @@ img {
 
     image-rendering: pixelated;
 }
+
+
+
+
+
+.toast-component {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    margin: 0;
+    padding: 10px 15px;
+    background: var(--background);
+    border: 1px solid var(--foreground);
+    display: none;
+    z-index: 100;
+    transition: opacity 0.3s;
+}
+
+.toast-component:popover-open {
+    display: block;
+}
+
+.toast-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toast-show {
+    opacity: 1;
+}
+
+
+
+.form-modal {
+    padding: 20px;
+    background: var(--background);
+    border: 2px solid var(--foreground);
+    width: 80%;
+    max-width: 500px;
+    color: var(--foreground);
+}
+
+.form-modal-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.inline-form {
+    display: inline;
+}

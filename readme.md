@@ -6,10 +6,8 @@
 > 
 > Ilham Firmansyah ([@RedStone576](https://github.com/redstone576)) - 2506532643, 06.00.12.01 - PBP E
 
-### TODO
-- [ ] set linter  
-- [x] set actions  
-- [x] ~~semantic versioning~~ [pride versioning](https://pridever.org/)
+### NOTES
+https://csui.cesilia.dev/pbp/
 
 ---
 

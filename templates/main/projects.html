@@ -8,58 +8,57 @@
     <section aria-labelledby="projects">
         <h2 id="projects">Projects</h2>
         
+        <div>
+            <input type="text" id="search-input" value="{{ title_query }}" placeholder="Search something">
+         
+            {% if user.is_superuser %}
+                <button popovertarget="add-modal">Add Project</button>
+            {% endif %}
+        </div>
+
+        <ul id="grid"
+            data-api-url="{% url 'main:api_projects' %}"
+            data-create-url="{% url 'main:create_project' %}"
+            data-csrf="{{ csrf_token }}"
+            data-is-superuser="{{ user.is_superuser|yesno:'true,false' }}"
+            data-is-editor="{{ is_editor|yesno:'true,false' }}"
+        >
+        </ul>
+
+        <template id="card-template">
+            <li>
+                <h3>
+                    [[ title ]], <time datetime="[[ created_at ]]">[[ created_at ]]</time> ([[ star_count ]] flowers)
+                </h3>
+                <span>[[ description ]]</span>
+                <br>
+                <a href="[[ link ]]">[[ link ]]</a>
+                
+                <div>
+                    <form method="post" action="/projects/[[ pk ]]/star/" class="inline-form">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="[[ csrf ]]">
+                        <button type="submit" title="[[ starTitle ]]">[[ starBtnText ]]</button>
+                    </form>
+                    
+                    {% if is_superuser or is_editor %}
+                        <a href="[[ createUrl ]]?id=[[ pk ]]"><button>Edit</button></a>
+                    {% endif %}
+                    
+                    {% if is_superuser %}
+                    <form class="delete-form inline-form" method="post" action="/projects/delete/?id=[[ pk ]]">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="[[ csrf ]]">
+                        <button type="submit">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </li>
+        </template>
+
         {% if user.is_superuser %}
-        <a href="{% url 'main:create_project' %}"><button>Add Project</button></a>
+            {% include 'layouts/form_modal.html' with action_url='main:api_projects' %}
         {% endif %}
 
-        {% if projects_list %}
-            <ul>
-                {% for project in projects_list %}
-                    <li>
-                        <h3>
-                            {{ project.title }},
-                        
-                            {% if project.created_at %}
-                                <time datetime="{{ project.created_at|date:'c' }}">
-                                    {{ project.created_at|date:"F Y" }}
-                                </time>
-                            {% endif %}
-                            
-                            ({{ project.starred_by|length }} flowers)
-                        </h3>
-                        
-                        <span>{{ project.description }}</span>
-
-                        <br>
-
-                        {% if project.link %}
-                            <a href="{{ project.link }}">{{ project.link }}</a>
-                        {% endif %}
-
-                        <div>
-                            <form method="post" action="{% url 'main:toggle_star' project.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" title="{% if project.starred_by %}Bloomed by {{ project.starred_by|join:', ' }}{% else %}Be the first to bloom{% endif %}">
-                                    {% if user.username in project.starred_by %}✿ Prune a flower{% else %}❀ Bloom a flower{% endif %}
-                                </button>
-                            </form>
-
-                            {% if is_superuser or is_editor %}
-                            <a href="{% url 'main:create_project' %}?id={{ project.id }}"><button>Edit</button></a>
-                            {% endif %}
-                            
-                            {% if is_superuser %}
-                            <form method="post" action="{% url 'main:delete_project' %}?id={{ project.id }}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" onclick="return confirm('Delete this project?');">Delete</button>
-                            </form>
-                            {% endif %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Belum ada proyek yang ditambahkan.</p>
-        {% endif %}
+        <script src="/static/js/fetch_list.js"></script>
+        <script src="/static/js/list.js"></script>
     </section>
 {% endblock content %}

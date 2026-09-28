@@ -7,39 +7,47 @@
 {% block content %}
     <section aria-labelledby="education">
         <h2 id="education">Education</h2>
+        <div class="search-bar">
+            <input type="text" id="search-input" value="{{ title_query }}" placeholder="Search education..." class="search-input">
+            {% if user.is_superuser %}
+            <button popovertarget="add-modal">Add Education</button>
+            {% endif %}
+        </div>
+
+        <ul id="grid"
+            data-api-url="{% url 'main:api_education' %}"
+            data-create-url="{% url 'main:create_education' %}"
+            data-csrf="{{ csrf_token }}"
+            data-is-superuser="{{ user.is_superuser|yesno:'true,false' }}"
+            data-is-editor="{{ is_editor|yesno:'true,false' }}"
+        >
+        </ul>
+
+        <template id="card-template">
+            <li>
+                <h3>[[ program ]], [[ field ]]</h3>
+                <span>[[ institution ]]</span>
+
+                {% if is_superuser or is_editor %}
+                    <a href="[[ createUrl ]]?id=[[ pk ]]"><button>Edit</button></a>
+                {% endif %}
+                {% if is_superuser %}
+                    <form class="delete-form inline-form" method="post" action="/education/delete/?id=[[ pk ]]">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="[[ csrf ]]">
+                        <button type="submit">Delete</button>
+                    </form>
+                {% endif %}
+
+                <br>
+                <time datetime="[[ started_at ]]">[[ started_at ]]</time>
+            </li>
+        </template>
+
         {% if user.is_superuser %}
-        <a href="{% url 'main:create_education' %}"><button>Add Education</button></a>
+            {% include 'layouts/form_modal.html' with action_url='main:api_education' %}
         {% endif %}
 
-        {% if education_list %}
-            <ul>
-                {% for education in education_list %}
-                    <li>
-                        <h3>{{ education.program }}, {{ education.field }}</h3>
-                        <span>{{ education.institution }}</span>
-
-                        {% if is_superuser or is_editor %}
-                            <a href="{% url 'main:create_education' %}?id={{ education.id }}"><button>Edit</button></a>
-                        {% endif %}
-                        {% if is_superuser %}
-                            <form method="post" action="{% url 'main:delete_education' %}?id={{ education.id }}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" onclick="return confirm('Delete this education?');">Delete</button>
-                            </form>
-                        {% endif %}
-
-                        <br>
-
-                        {% if education.started_at %}
-                            <time datetime="{{ education.started_at|date:'c' }}">
-                                {{ education.started_at|date:"F Y" }}
-                            </time>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Belum ada pendidikan yang ditambahkan.</p>
-        {% endif %}
+        <script src="/static/js/fetch_list.js"></script>
+        <script src="/static/js/list.js"></script>
     </section>
 {% endblock content %}

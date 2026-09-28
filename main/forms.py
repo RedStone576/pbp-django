@@ -1,8 +1,41 @@
 from django.forms import DateTimeInput, ModelForm, Select, Textarea, TextInput, URLInput
+from django.utils.html import strip_tags
+from django.core.exceptions import ValidationError
 
 from main.models import Education, Experience, Project
 
+def strip_html_tags(*fields_to_strip):
+    def decorator(cls):
+        original_clean = cls.clean
 
+        # mabar mas https://docs.djangoproject.com/en/5.0/ref/forms/validation/#cleaning-and-validating-fields-that-depend-on-each-other
+        def clean(self):
+            cleaned_data = original_clean(self)
+
+            if cleaned_data is None:
+                cleaned_data = self.cleaned_data
+
+            for field in fields_to_strip:
+                value = cleaned_data.get(field)
+                
+                if isinstance(value, str):
+                    stripped = strip_tags(value).strip()
+                
+                    if not stripped:
+                        # https://docs.djangoproject.com/en/5.0/ref/forms/api/#django.forms.Form.add_error
+                        self.add_error(field, ValidationError(f"{self.fields[field].label} can't contain only HTML tags."))
+                    else:
+                        cleaned_data[field] = stripped
+            
+            return cleaned_data
+
+        cls.clean = clean
+        
+        return cls
+    return decorator
+
+
+@strip_html_tags("title", "description")
 class ExperienceForm(ModelForm):
     class Meta:
         model = Experience
@@ -27,6 +60,7 @@ class ExperienceForm(ModelForm):
         }
 
 
+@strip_html_tags("institution", "program", "field")
 class EducationForm(ModelForm):
     class Meta:
         model = Education
@@ -47,6 +81,7 @@ class EducationForm(ModelForm):
         }
 
 
+@strip_html_tags("title", "description")
 class ProjectForm(ModelForm):
     class Meta:
         model = Project

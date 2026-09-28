@@ -172,3 +172,24 @@ img {
 .toast-show {
     opacity: 1;
 }
+
+
+
+.form-modal {
+    padding: 20px;
+    background: var(--background);
+    border: 2px solid var(--foreground);
+    width: 80%;
+    max-width: 500px;
+    color: var(--foreground);
+}
+
+.form-modal-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.inline-form {
+    display: inline;
+}

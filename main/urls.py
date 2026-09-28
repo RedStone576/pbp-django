@@ -31,9 +31,9 @@ urlpatterns = [
 
     path("projects/<uuid:project_id>/star/", toggle_star, name="toggle_star"),
 
-    path("api/experience/", api_view, {"item_type": "experience"}),
-    path("api/education/",  api_view, {"item_type": "education"}),
-    path("api/projects/",   api_view, {"item_type": "projects"}),
+    path("api/experience/", api_view, {"item_type": "experience"}, name="api_experience"),
+    path("api/education/",  api_view, {"item_type": "education"},  name="api_education"),
+    path("api/projects/",   api_view, {"item_type": "projects"},   name="api_projects"),
 
     path("super/register/", register,    name="register"),
     path("super/login/",    login_user,  name="login"),

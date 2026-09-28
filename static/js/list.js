@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         searchInputId: "search-input",
         addFormId: "add-form",
         modalId: "add-modal",
-        renderCard(item) {
+        render(item) {
             let html = templateStr;
             const fields = item.fields;
             const pk = item.pk;
@@ -25,9 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
             html = html.replace(/\[\[ createUrl \]\]/g, createUrl || "");
             for (const key of Object.keys(fields)) {
                 let val = fields[key];
-                if (key.endsWith("_at") && val) {
+                if (key.endsWith("_at") && val)
                     val = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long" }).format(new Date(val));
-                }
                 html = html.replace(new RegExp(`\\[\\[ ${key} \\]\\]`, 'g'), escapeHtml(val));
             }
             if (fields.is_starred !== undefined) {
@@ -36,8 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 html = html.replace(/\[\[ starBtnText \]\]/g, starBtnText);
                 html = html.replace(/\[\[ starTitle \]\]/g, starTitle);
             }
-            html = html.replace(/\[\[ .*? \]\]/g, "");
-            return html;
+            return html.replace(/\[\[ .*? \]\]/g, "");
         }
     });
 });

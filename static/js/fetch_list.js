@@ -9,7 +9,7 @@ function escapeHtml(value) {
     })[meow]);
 }
 async function initAjaxList(config) {
-    const { apiUrl, containerId, searchInputId, addFormId, modalId, renderCard } = config;
+    const { apiUrl, containerId, searchInputId, addFormId, modalId, render } = config;
     const container = document.getElementById(containerId);
     const searchInput = document.getElementById(searchInputId);
     const addForm = document.getElementById(addFormId);
@@ -38,7 +38,7 @@ async function initAjaxList(config) {
             }
             data.forEach(item => {
                 const li = document.createElement("li");
-                li.innerHTML = renderCard(item);
+                li.innerHTML = render(item);
                 listContainer.appendChild(li);
             });
         }
@@ -98,6 +98,10 @@ async function initAjaxList(config) {
                 body: new FormData(form),
                 headers: { "X-Requested-With": "XMLHttpRequest" }
             });
+            if (res.redirected && res.url.includes("login")) {
+                window.location.href = res.url;
+                return;
+            }
             if (res.ok) {
                 if (form.classList.contains("delete-form")) {
                     if (typeof showToast !== "undefined") {

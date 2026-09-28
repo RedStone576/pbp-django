@@ -31,7 +31,7 @@ function escapeHtml(value: unknown): string
 
 async function initAjaxList<T extends AjaxListItem>(config: AjaxListConfig<T>): Promise<void>
 {
-    const { apiUrl, containerId, searchInputId, addFormId, modalId, renderCard } = config
+    const { apiUrl, containerId, searchInputId, addFormId, modalId, render } = config
 
     const container   = document.getElementById(containerId)
     const searchInput = document.getElementById(searchInputId) as HTMLInputElement | null
@@ -161,6 +161,12 @@ async function initAjaxList<T extends AjaxListItem>(config: AjaxListConfig<T>): 
                 body: new FormData(form),
                 headers: { "X-Requested-With": "XMLHttpRequest" }
             })
+
+            if (res.redirected && res.url.includes("login")) 
+            {
+                window.location.href = res.url
+                return
+            }
 
             if (res.ok) 
             {

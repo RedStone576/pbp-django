@@ -17,12 +17,22 @@ async function initAjaxList(config) {
         return;
     const listContainer = container;
     const baseUrl = apiUrl;
+    const loadingState = document.getElementById("loading");
+    const errorState = document.getElementById("error");
+    const emptyState = document.getElementById("empty");
     let abortCtrl;
     let debounceTimer;
     async function loadData(query = "") {
         abortCtrl?.abort();
         abortCtrl = new AbortController();
         try {
+            if (loadingState)
+                loadingState.style.display = "block";
+            if (errorState)
+                errorState.style.display = "none";
+            if (emptyState)
+                emptyState.style.display = "none";
+            listContainer.style.display = "none";
             const url = query ? `${baseUrl}?title=${encodeURIComponent(query)}` : baseUrl;
             const res = await fetch(url, {
                 headers: { "Accept": "application/json" },
@@ -31,11 +41,17 @@ async function initAjaxList(config) {
             if (!res.ok)
                 throw new Error("Network err");
             const data = await res.json();
+            if (loadingState)
+                loadingState.style.display = "none";
             listContainer.innerHTML = "";
             if (data.length === 0) {
-                listContainer.innerHTML = '<p class="dinkus">Nothing.</p>';
+                if (emptyState)
+                    emptyState.style.display = "block";
+                else
+                    listContainer.innerHTML = '<p class="dinkus">Nothing.</p>';
                 return;
             }
+            listContainer.style.display = "block";
             data.forEach(item => {
                 const li = document.createElement("li");
                 li.innerHTML = render(item);
@@ -45,6 +61,10 @@ async function initAjaxList(config) {
         catch (e) {
             if (e instanceof DOMException && e.name === "AbortError")
                 return;
+            if (loadingState)
+                loadingState.style.display = "none";
+            if (errorState)
+                errorState.style.display = "block";
             console.error(e);
         }
     }

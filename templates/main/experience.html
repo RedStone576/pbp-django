@@ -8,51 +8,57 @@
 {% block content %}
     <section aria-labelledby="experience">
         <h2 id="experience">Experience</h2>
+        <div class="search-bar">
+            <input type="text" id="search-input" value="{{ title_query }}" placeholder="Search experience..." class="search-input">
+            {% if user.is_superuser %}
+            <button popovertarget="add-modal">Add Experience</button>
+            {% endif %}
+        </div>
+
+        <p id="loading" style="display: none; color: var(--muted);">Loading...</p>
+        <p id="error" style="display: none; color: red;">Failed to load data. Try reloading.</p>
+        <p id="empty" style="display: none; color: var(--muted);">Belum ada data yang ditambahkan.</p>>
+
+        <ul id="grid"
+            data-api-url="{% url 'main:api_experience' %}"
+            data-create-url="{% url 'main:create_experience' %}"
+            data-csrf="{{ csrf_token }}"
+            data-is-superuser="{{ user.is_superuser|yesno:'true,false' }}"
+            data-is-editor="{{ is_editor|yesno:'true,false' }}"
+        >
+        </ul>
+
+        <template id="card-template">
+            <li>
+                <img src="[[ thumbnail ]]" style="max-width: 200px; display: block; margin-bottom: 10px;">
+                
+                <h3>[[ title ]] • [[ category_display ]]</h3>
+
+                {% if is_superuser or is_editor %}
+                    <a href="[[ createUrl ]]?id=[[ pk ]]"><button>Edit</button></a>
+                {% endif %}
+                {% if is_superuser %}
+                    <form class="delete-form inline-form" method="post" action="/experience/delete/?id=[[ pk ]]">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="[[ csrf ]]">
+                        <button type="submit">Delete</button>
+                    </form>
+                {% endif %}
+
+                <div>
+                    <time datetime="[[ started_at ]]">[[ started_at ]]</time>
+                    <span> - </span>
+                    <time datetime="[[ ended_at ]]">[[ ended_at ]]</time>
+                </div>
+
+                <p>[[ description ]]</p>
+            </li>
+        </template>
+
         {% if user.is_superuser %}
-        <a href="{% url 'main:create_experience' %}"><button>Add Experience</button></a>
+            {% include 'layouts/form_modal.html' with action_url='main:api_experience' %}
         {% endif %}
 
-        {% if experience_list %}
-            <ul>
-                {% for experience in experience_list %}
-                    <li>
-                        {% if experience.thumbnail %}
-                            <img src="{{ experience.thumbnail }}" alt="{{ experience.title }} thumbnail" style="max-width: 200px; display: block; margin-bottom: 10px;">
-                        {% endif %}
-                        
-                        <h3>{{ experience.title }} • {{ experience.category|title }}</h3>
-
-                        {% if is_superuser or is_editor %}
-                            <a href="{% url 'main:create_experience' %}?id={{ experience.id }}"><button>Edit</button></a>
-                        {% endif %}
-                        {% if is_superuser %}
-                            <form method="post" action="{% url 'main:delete_experience' %}?id={{ experience.id }}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" onclick="return confirm('Delete this experience?');">Delete</button>
-                            </form>
-                        {% endif %}
-
-                        {% if experience.started_at %}
-                            <time datetime="{{ experience.started_at|date:'c' }}">
-                                {{ experience.started_at|date:"F Y" }}
-                            </time>
-                        {% endif %}
-
-                        {% if experience.ended_at %}
-                            <span> - </span>
-                            <time datetime="{{ experience.ended_at|date:'c' }}">
-                                {{ experience.ended_at|date:"F Y" }}
-                            </time>
-                        {% else %}
-                            <span> - Sekarang</span>
-                        {% endif %}
-
-                        <p>{{ experience.description }}</p>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Belum ada pengalaman yang ditambahkan.</p>
-        {% endif %}
+        <script src="/static/js/fetch_list.js"></script>
+        <script src="/static/js/list.js"></script>
     </section>
 {% endblock content %}

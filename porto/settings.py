@@ -31,12 +31,13 @@ SECRET_KEY = 'django-insecure-t=&)^3p4&x-++^=qdm)w6m0t@)73(w#9!2p^fvhscvz^%o@@r@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "ilham-naufal-portofolio.pws.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "ilham-naufal-portofolio.pws.cs.ui.ac.id", "ilham.csui.me"]
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 CSRF_TRUSTED_ORIGINS = [
     "https://ilham-naufal-portofolio.pws.cs.ui.ac.id",
+    "https://ilham.csui.me"
 ]
 
 CSRF_COOKIE_SECURE    = True

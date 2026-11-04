@@ -1,8 +1,9 @@
+from django.core.exceptions import ValidationError
 from django.forms import DateTimeInput, ModelForm, Select, Textarea, TextInput, URLInput
 from django.utils.html import strip_tags
-from django.core.exceptions import ValidationError
 
 from main.models import Education, Experience, Project
+
 
 def strip_html_tags(*fields_to_strip):
     def decorator(cls):
@@ -17,20 +18,20 @@ def strip_html_tags(*fields_to_strip):
 
             for field in fields_to_strip:
                 value = cleaned_data.get(field)
-                
+
                 if isinstance(value, str):
                     stripped = strip_tags(value).strip()
-                
+
                     if not stripped:
                         # https://docs.djangoproject.com/en/5.0/ref/forms/api/#django.forms.Form.add_error
                         self.add_error(field, ValidationError(f"{self.fields[field].label} can't contain only HTML tags."))
                     else:
                         cleaned_data[field] = stripped
-            
+
             return cleaned_data
 
         cls.clean = clean
-        
+
         return cls
     return decorator
 

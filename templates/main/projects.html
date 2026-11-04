@@ -21,48 +21,20 @@
         <p id="empty" style="display: none; color: var(--muted);">Belum ada data yang ditambahkan.</p>
         
         <ul id="grid"
-            data-api-url="{% url 'main:api_projects' %}"
-            data-create-url="{% url 'main:create_project' %}"
+            data-api-url="{% url 'api:project-list' %}"
+            data-edit-url="{% url 'main:create_project' %}"
             data-csrf="{{ csrf_token }}"
             data-is-superuser="{{ user.is_superuser|yesno:'true,false' }}"
             data-is-editor="{{ is_editor|yesno:'true,false' }}"
+            data-is-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
+            data-login-url="{% url 'main:login' %}"
         >
         </ul>
 
-        <template id="card-template">
-            <li>
-                <h3>
-                    [[ title ]], <time datetime="[[ created_at ]]">[[ created_at ]]</time> ([[ star_count ]] flowers)
-                </h3>
-                <span>[[ description ]]</span>
-                <br>
-                <a href="[[ link ]]">[[ link ]]</a>
-                
-                <div>
-                    <form method="post" action="/projects/[[ pk ]]/star/" class="inline-form">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="[[ csrf ]]">
-                        <button type="submit" title="[[ starTitle ]]">[[ starBtnText ]]</button>
-                    </form>
-                    
-                    {% if is_superuser or is_editor %}
-                        <a href="[[ createUrl ]]?id=[[ pk ]]"><button>Edit</button></a>
-                    {% endif %}
-                    
-                    {% if is_superuser %}
-                    <form class="delete-form inline-form" method="post" action="/projects/delete/?id=[[ pk ]]">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="[[ csrf ]]">
-                        <button type="submit">Delete</button>
-                    </form>
-                    {% endif %}
-                </div>
-            </li>
-        </template>
-
         {% if user.is_superuser %}
-            {% include 'layouts/form_modal.html' with action_url='main:api_projects' %}
+            {% include 'layouts/form_modal.html' with action_url='api:project-list' %}
         {% endif %}
 
-        <script src="/static/js/fetch_list.js"></script>
-        <script src="/static/js/list.js"></script>
+        <script src="/static/js/projects.js"></script>
     </section>
 {% endblock content %}

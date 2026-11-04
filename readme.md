@@ -20,10 +20,10 @@ https://csui.cesilia.dev/pbp/
 
 ## Essay
 - Tugas 1: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas1.md)
-- Tugas 2: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas2.md)
-- Tugas 3: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas3.md)
-- Tugas 4: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas4.md)
-- Tugas 5: [./essay/tugas1.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas5.md)
+- Tugas 2: [./essay/tugas2.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas2.md)
+- Tugas 3: [./essay/tugas3.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas3.md)
+- Tugas 4: [./essay/tugas4.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas4.md)
+- Tugas 5: [./essay/tugas5.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas5.md)
 
 ## Credits
 - PBP Fasilkom Ganjil 26/27

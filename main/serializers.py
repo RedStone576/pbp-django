@@ -1,11 +1,13 @@
 from django.utils.html import strip_tags
 from rest_framework import serializers
+
 from main.models import Project
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     star_count = serializers.SerializerMethodField()
     is_starred = serializers.SerializerMethodField()
-    
+
     starred_by_names = serializers.SerializerMethodField()
 
     class Meta:
@@ -18,10 +20,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def validate_title(self, value):
         value = strip_tags(value).strip()
-        
+
         if not value:
             raise serializers.ValidationError("Title cannot be empty bruh")
-        
+
         return value
 
     def validate_description(self, value):
@@ -32,7 +34,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_is_starred(self, obj):
         request = self.context.get("request")
-        
+
         return bool(request and request.user.is_authenticated and request.user in obj.starred_by.all())
 
     def get_starred_by_names(self, obj):

@@ -35,6 +35,10 @@
             {% include 'layouts/form_modal.html' with action_url='api:project-list' %}
         {% endif %}
 
+        {% if user.is_superuser or is_editor %}
+            {% include 'layouts/edit_modal.html' %}
+        {% endif %}
+
         <script src="/static/js/projects.js"></script>
     </section>
 {% endblock content %}

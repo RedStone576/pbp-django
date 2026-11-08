@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () =>
     const grid         = document.getElementById("grid")
     const searchInput  = document.getElementById("search-input") as HTMLInputElement | null
     const addForm      = document.getElementById("add-form") as HTMLFormElement | null
+    const editForm     = document.getElementById("edit-form") as HTMLFormElement | null
+    const editModal    = document.getElementById("edit-modal") as HTMLElement & { showPopover(): void; hidePopover(): void } | null
     const loadingState = document.getElementById("loading")
     const errorState   = document.getElementById("error")
     const emptyState   = document.getElementById("empty")
@@ -30,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () =>
     const error       = errorState
     const empty       = emptyState
     const apiUrl      = projectGrid.dataset.apiUrl
-    const editUrl     = projectGrid.dataset.editUrl
     const csrfToken   = projectGrid.dataset.csrf
     const isSuperuser = projectGrid.dataset.isSuperuser === "true"
     const isEditor    = projectGrid.dataset.isEditor === "true"
@@ -132,12 +133,18 @@ document.addEventListener("DOMContentLoaded", () =>
 
         if (isSuperuser || isEditor) 
         {
-            const editLink = document.createElement("a")
+            const editButton = document.createElement("button")
         
-            editLink.href        = `${editUrl}?id=${encodeURIComponent(project.id)}`
-            editLink.textContent = "Edit"
+            editButton.type                = "button"
+            editButton.dataset.action      = "edit"
+            editButton.dataset.id          = project.id
+            editButton.dataset.title       = project.title
+            editButton.dataset.description = project.description
+            editButton.dataset.link        = project.link ?? ""
+            editButton.dataset.createdAt   = project.created_at ?? ""
+            editButton.textContent         = "Edit"
         
-            actions.append(editLink)
+            actions.append(editButton)
         }
         
         if (isSuperuser) 
@@ -155,6 +162,31 @@ document.addEventListener("DOMContentLoaded", () =>
         card.append(actions)
         
         return card
+    }
+
+    function openEditModal(project: { id: string; title: string; description: string; link: string; createdAt: string }): void
+    {
+        if (!editForm || !editModal) return
+
+        const get = (name: string) => editForm.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="edit-${name}"]`)
+
+        const idInput = editForm.querySelector<HTMLInputElement>("#edit-id")
+        
+        if (idInput) idInput.value = project.id
+
+        const f = get("title")        
+        const d = get("description")  
+        const l = get("link")   
+        const c = get("created_at")
+        
+        // lol
+        if (f) f.value = project.title
+        if (d) d.value = project.description
+        if (l) l.value = project.link
+        if (c) c.value = project.createdAt ? project.createdAt.slice(0, 16) : ""
+        
+
+        editModal.showPopover()
     }
 
     async function fetchProjects(query = ""): Promise<void> 
@@ -264,6 +296,50 @@ document.addEventListener("DOMContentLoaded", () =>
         }
     })
 
+    editForm?.addEventListener("submit", async event =>
+    {
+        event.preventDefault()
+
+        if (!apiUrl) return
+
+        const button = editForm.querySelector<HTMLButtonElement>(`button[type="submit"]`)
+        
+        if (!button) return
+
+        const idInput = editForm.querySelector<HTMLInputElement>("#edit-id")
+        const id      = idInput?.value
+
+        if (!id) return
+
+        button.disabled = true
+
+        const fields  = new FormData(editForm)
+        const payload = Object.fromEntries(["title", "description", "link", "created_at"].map(name => [name, fields.get(`edit-${name}`) ?? ""])) as Record<string, FormDataEntryValue | null>
+
+        if (payload.created_at === "") payload.created_at = null
+
+        try
+        {
+            await writeProject(`${apiUrl}${encodeURIComponent(id)}/`, "PATCH", payload)
+
+            editModal?.hidePopover()
+
+            showToast("Success", "Project updated.", "success")
+
+            await fetchProjects(searchInput.value.trim())
+        }
+
+        catch (error)
+        {
+            showToast("Could not update project", error instanceof Error ? error.message : "Request failed.", "error")
+        }
+
+        finally
+        {
+            button.disabled = false
+        }
+    })
+
     projectGrid.addEventListener("click", async event => 
     {
         if (!(event.target instanceof Element)) return
@@ -275,7 +351,22 @@ document.addEventListener("DOMContentLoaded", () =>
         const action = button.dataset.action
         const id     = button.dataset.id
     
-        if (!apiUrl || !id || (action !== "star" && action !== "delete")) return
+        if (!id) return
+
+        if (action === "edit")
+        {
+            openEditModal({
+                id,
+                title:       button.dataset.title       ?? "",
+                description: button.dataset.description ?? "",
+                link:        button.dataset.link        ?? "",
+                createdAt:   button.dataset.createdAt   ?? ""
+            })
+            
+            return
+        }
+
+        if (!apiUrl || (action !== "star" && action !== "delete")) return
         if (action === "delete" && !window.confirm("Delete this project?")) return
 
         button.disabled = true

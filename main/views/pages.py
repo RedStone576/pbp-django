@@ -28,6 +28,7 @@ def show_list(request, item_type):
     context = {
         "title_query": request.GET.get("title", "").strip(),
         "form": FormClass(),
+        "edit_form": FormClass(prefix="edit") # https://stackoverflow.com/questions/226510/django-forms-how-to-use-prefix-parameter
     }
 
     return render(request, f"{item_type}.html", GLOBAL_CONTEXT(request) | context)

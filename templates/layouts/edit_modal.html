@@ -1,0 +1,12 @@
+<div id="edit-modal" popover="auto" class="form-modal">
+    <h2 id="edit-modal-title">Edit Entry</h2>
+    <form id="edit-form">
+        {% csrf_token %}
+        <input type="hidden" id="edit-id" name="id">
+        {{ edit_form.as_p }}
+        <div class="form-modal-actions">
+            <button type="submit">Save Changes</button>
+            <button type="button" popovertarget="edit-modal" popovertargetaction="hide">Cancel</button>
+        </div>
+    </form>
+</div>

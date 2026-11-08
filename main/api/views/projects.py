@@ -9,12 +9,12 @@ from rest_framework.decorators import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from main.models import Project
-from main.permissions import (
+from main.api.permissions import (
     IsPortfolioOwnerOrEditorOrReadOnly,
     IsPortfolioOwnerOrReadOnly,
 )
-from main.serializers import ProjectSerializer
+from main.api.serializers import ProjectSerializer
+from main.models import Project
 
 
 @api_view(["GET", "HEAD", "POST"])
@@ -71,7 +71,6 @@ def project_detail(request, project_id):
     serializer.save()
 
     return Response(serializer.data)
-
 
 
 @api_view(["POST"])

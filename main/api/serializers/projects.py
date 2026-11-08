@@ -7,16 +7,15 @@ from main.models import Project
 class ProjectSerializer(serializers.ModelSerializer):
     star_count = serializers.SerializerMethodField()
     is_starred = serializers.SerializerMethodField()
-
     starred_by_names = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
-        fields = [
+        fields = (
             "id", "title", "description", "link", "created_at",
             "star_count", "is_starred", "starred_by_names",
-        ]
-        read_only_fields = ["id"]
+        )
+        read_only_fields = ("id",)
 
     def validate_title(self, value):
         value = strip_tags(value).strip()

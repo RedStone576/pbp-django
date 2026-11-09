@@ -1,64 +1,55 @@
-{% extends 'base.html' %}
-
-{% block meta %}
-     <title>{{ name }} - Experience</title>
-{% endblock meta %}
-
-
+{% extends "base.html" %}
+{% block meta %}<title>{{ name }} - Experience</title>{% endblock meta %}
 {% block content %}
     <section aria-labelledby="experience">
         <h2 id="experience">Experience</h2>
         <div class="search-bar">
-            <input type="text" id="search-input" value="{{ title_query }}" placeholder="Search experience..." class="search-input">
-            {% if user.is_superuser %}
-            <button popovertarget="add-modal">Add Experience</button>
-            {% endif %}
+            <input type="text"
+                   id="search-input"
+                   value="{{ title_query }}"
+                   placeholder="Search experience..."
+                   class="search-input">
+            {% if user.is_superuser %}<button popovertarget="add-modal">Add Experience</button>{% endif %}
         </div>
-
-        <p id="loading" style="display: none; color: var(--muted);">Loading...</p>
-        <p id="error" style="display: none; color: red;">Failed to load data. Try reloading.</p>
-        <p id="empty" style="display: none; color: var(--muted);">Belum ada data yang ditambahkan.</p>
-
+        <p id="loading" style="display:none;color:var(--muted)">Loading...</p>
+        <p id="error" style="display:none;color:red">Failed to load data. Try reloading.</p>
+        <p id="empty" style="display:none;color:var(--muted)">Belum ada data yang ditambahkan.</p>
         <ul id="grid"
-            data-api-url="{% url 'main:api_experience' %}"
-            data-create-url="{% url 'main:create_experience' %}"
+            data-api-url="{% url 'api:experience-list' %}"
             data-csrf="{{ csrf_token }}"
             data-is-superuser="{{ user.is_superuser|yesno:'true,false' }}"
             data-is-editor="{{ is_editor|yesno:'true,false' }}"
-        >
+            data-is-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
+            data-login-url="{% url 'main:login' %}">
         </ul>
-
         <template id="card-template">
             <li>
-                <img src="[[ thumbnail ]]" style="max-width: 200px; display: block; margin-bottom: 10px;">
-                
+                <img src="[[ thumbnail ]]" alt="">
                 <h3>[[ title ]] • [[ category_display ]]</h3>
-
-                {% if is_superuser or is_editor %}
-                    <a href="[[ createUrl ]]?id=[[ pk ]]"><button>Edit</button></a>
-                {% endif %}
-                {% if is_superuser %}
-                    <form class="delete-form inline-form" method="post" action="/experience/delete/?id=[[ pk ]]">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="[[ csrf ]]">
-                        <button type="submit">Delete</button>
-                    </form>
-                {% endif %}
-
-                <div>
-                    <time datetime="[[ started_at ]]">[[ started_at ]]</time>
-                    <span> - </span>
-                    <time datetime="[[ ended_at ]]">[[ ended_at ]]</time>
-                </div>
-
+                <time datetime="[[ started_at_iso ]]">[[ started_at ]]</time> – <time datetime="[[ ended_at_iso ]]">[[ ended_at ]]</time>
                 <p>[[ description ]]</p>
-            </li>
-        </template>
-
-        {% if user.is_superuser %}
-            {% include 'layouts/form_modal.html' with action_url='main:api_experience' %}
-        {% endif %}
-
-        <script src="/static/js/fetch_list.js"></script>
-        <script src="/static/js/list.js"></script>
-    </section>
+                <div class="entry-actions">
+                {% if user.is_authenticated %}<button type="button"
+                                                      data-action="star"
+                                                      data-id="[[ id ]]"
+                                                      title="[[ star_title ]]">[[ star_button ]] ([[ star_count ]])</button>
+            {% else %}<a href="{% url 'main:login' %}">Login to bloom a flower ([[ star_count ]])</a>{% endif %}
+            {% if user.is_superuser or is_editor %}<button type="button"
+                                                           data-action="edit"
+                                                           data-id="[[ id ]]">Edit</button>{% endif %}
+            {% if user.is_superuser %}<button type="button"
+                                              data-action="delete"
+                                              data-id="[[ id ]]">Delete</button>{% endif %}
+        </div>
+    </li>
+</template>
+{% if user.is_superuser %}
+    {% include "layouts/form_modal.html" with action_url="api:experience-list" %}
+{% endif %}
+{% if user.is_superuser or is_editor %}
+    {% include "layouts/edit_modal.html" %}
+{% endif %}
+<script src="/static/js/fetch_list.js"></script>
+<script src="/static/js/list.js"></script>
+</section>
 {% endblock content %}

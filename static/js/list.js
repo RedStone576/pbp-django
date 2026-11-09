@@ -1,41 +1,73 @@
 "use strict";
 document.addEventListener("DOMContentLoaded", () => {
     const grid = document.getElementById("grid");
-    const templateElement = document.getElementById("card-template");
-    if (!grid || !templateElement)
+    const template = document.getElementById("card-template");
+    const searchInput = document.getElementById("search-input");
+    if (!(grid instanceof HTMLUListElement) || !template || !searchInput)
         return;
-    const templateStr = templateElement.innerHTML;
-    const apiUrl = grid.getAttribute("data-api-url");
-    const createUrl = grid.getAttribute("data-create-url");
-    const csrf = grid.getAttribute("data-csrf");
-    const isSuperuser = grid.getAttribute("data-is-superuser") === "true";
-    const isEditor = grid.getAttribute("data-is-editor") === "true";
-    initAjaxList({
-        apiUrl,
-        containerId: "grid",
-        searchInputId: "search-input",
-        addFormId: "add-form",
-        modalId: "add-modal",
-        render(item) {
-            let html = templateStr;
-            const fields = item.fields;
-            const pk = item.pk;
-            html = html.replace(/\[\[ pk \]\]/g, pk);
-            html = html.replace(/\[\[ csrf \]\]/g, csrf || "");
-            html = html.replace(/\[\[ createUrl \]\]/g, createUrl || "");
-            for (const key of Object.keys(fields)) {
-                let val = fields[key];
-                if (key.endsWith("_at") && val)
-                    val = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long" }).format(new Date(val));
-                html = html.replace(new RegExp(`\\[\\[ ${key} \\]\\]`, 'g'), escapeHtml(val));
+    const render = (item) => {
+        const values = { ...item };
+        for (const key of ["started_at", "ended_at", "created_at"]) {
+            const value = item[key];
+            if (value) {
+                const date = new Date(String(value));
+                values[`${key}_iso`] = Number.isNaN(date.getTime()) ? "" : date.toISOString();
+                values[key] = Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long" }).format(date);
             }
-            if (fields.is_starred !== undefined) {
-                const starBtnText = fields.is_starred ? "❀ Prune a flower" : "✿ Bloom a flower";
-                const starTitle = fields.star_count > 0 ? `Bloomed by ${escapeHtml(fields.starred_by_names)}` : "Be the first to bloom";
-                html = html.replace(/\[\[ starBtnText \]\]/g, starBtnText);
-                html = html.replace(/\[\[ starTitle \]\]/g, starTitle);
-            }
-            return html.replace(/\[\[ .*? \]\]/g, "");
         }
+        values.star_button = item.is_starred ? "❀ Prune a flower" : "✿ Bloom a flower";
+        values.star_title = item.starred_by_names || "Be the first to bloom";
+        const html = template.innerHTML.replace(/\[\[\s*(\w+)\s*\]\]/g, (_match, key) => escapeHtml(values[key]));
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const card = doc.body.firstElementChild;
+        if (!(card instanceof HTMLLIElement))
+            throw new Error("Card template must have an <li> root.");
+        card.querySelectorAll("a[href]").forEach(link => {
+            if (!link.getAttribute("href")) {
+                link.removeAttribute("href");
+                return;
+            }
+            try {
+                const url = new URL(link.getAttribute("href") || "", window.location.origin);
+                if (!["http:", "https:"].includes(url.protocol))
+                    link.removeAttribute("href");
+            }
+            catch {
+                link.removeAttribute("href");
+            }
+        });
+        card.querySelectorAll("img[src]").forEach(image => {
+            if (!image.getAttribute("src")) {
+                image.removeAttribute("src");
+                return;
+            }
+            try {
+                const url = new URL(image.getAttribute("src") || "", window.location.origin);
+                if (!["http:", "https:"].includes(url.protocol))
+                    image.removeAttribute("src");
+            }
+            catch {
+                image.removeAttribute("src");
+            }
+        });
+        return card;
+    };
+    const addForm = document.getElementById("add-form");
+    const editForm = document.getElementById("edit-form");
+    const editModal = document.getElementById("edit-modal");
+    const apiUrl = grid.dataset.apiUrl;
+    if (!apiUrl)
+        return;
+    void initAjaxList({
+        grid,
+        apiUrl,
+        csrfToken: grid.dataset.csrf || "",
+        searchInput,
+        addForm,
+        editForm,
+        editModal,
+        canDelete: grid.dataset.isSuperuser === "true",
+        isAuthenticated: grid.dataset.isAuthenticated === "true",
+        render,
     });
 });

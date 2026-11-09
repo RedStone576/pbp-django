@@ -1,5 +1,5 @@
-from .projects import ProjectSerializer
 from .education import EducationSerializer
 from .experience import ExperienceSerializer
+from .projects import ProjectSerializer
 
-__all__ = ["ProjectSerializer", "EducationSerializer", "ExperienceSerializer"]
+__all__ = ["EducationSerializer", "ExperienceSerializer", "ProjectSerializer"]

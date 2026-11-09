@@ -24,6 +24,8 @@ https://csui.cesilia.dev/pbp/
 - Tugas 3: [./essay/tugas3.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas3.md)
 - Tugas 4: [./essay/tugas4.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas4.md)
 - Tugas 5: [./essay/tugas5.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas5.md)
+- Tugas 6: [./essay/tugas6.md](https://github.com/RedStone576/pbp-django/blob/master/essay/tugas6.md)
+
 
 ## Credits
 - PBP Fasilkom Ganjil 26/27

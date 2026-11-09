@@ -1,218 +1,189 @@
-interface AjaxListItem
-{
-    pk: string
+interface ApiItem {
+    id: string
+    [field: string]: unknown
 }
 
-interface AjaxListConfig<T extends AjaxListItem>
-{
-    apiUrl: string | null
-    containerId: string
-    searchInputId: string
-    addFormId: string
-    modalId?: string
-    render: (item: T) => string
+interface ApiListConfig {
+    grid: HTMLUListElement
+    apiUrl: string
+    csrfToken: string
+    searchInput: HTMLInputElement
+    addForm: HTMLFormElement | null
+    editForm: HTMLFormElement | null
+    editModal: HTMLElement & { showPopover(): void; hidePopover(): void } | null
+    canDelete: boolean
+    isAuthenticated: boolean
+    render: (item: ApiItem) => HTMLLIElement
 }
 
-interface AjaxListResponse
-{
-    errors?: Record<string, Array<{ message: string }>>
-}
-
-function escapeHtml(value: unknown): string
-{
-    return String(value ?? "").replace(/[&<>"']/g, meow => ({
+function escapeHtml(value: unknown): string {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
-        "'": "&#39;"
-    })[meow]!)
+        "'": "&#39;",
+    })[char]!)
 }
 
-async function initAjaxList<T extends AjaxListItem>(config: AjaxListConfig<T>): Promise<void>
-{
-    const { apiUrl, containerId, searchInputId, addFormId, modalId, render } = config
+function apiDateInput(value: unknown): string {
+    if (!value) return ""
+    const date = new Date(String(value))
+    if (Number.isNaN(date.getTime())) return ""
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
+}
 
-    const container   = document.getElementById(containerId)
-    const searchInput = document.getElementById(searchInputId) as HTMLInputElement | null
-    const addForm     = document.getElementById(addFormId) as HTMLFormElement | null
+function apiDateValue(value: FormDataEntryValue): string | null {
+    if (!value) return null
+    const date = new Date(String(value))
+    return Number.isNaN(date.getTime()) ? String(value) : date.toISOString()
+}
 
-    if (!container || !apiUrl) return
+function apiFormData(form: HTMLFormElement): Record<string, string | null> {
+    const payload: Record<string, string | null> = {}
+    for (const [rawName, value] of new FormData(form)) {
+        if (rawName === "csrfmiddlewaretoken" || rawName === "id" || typeof value !== "string") continue
+        const name = rawName.startsWith("edit-") ? rawName.slice(5) : rawName
+        payload[name] = name.endsWith("_at") ? apiDateValue(value) : value
+    }
+    return payload
+}
 
-    const listContainer = container
-    const baseUrl = apiUrl
+function apiErrorMessage(data: unknown, status: number): string {
+    if (data && typeof data === "object") {
+        const messages = Object.values(data).flatMap(value =>
+            Array.isArray(value) ? value.map(String) : [String(value)],
+        )
+        if (messages.length) return messages.join(" ")
+    }
+    return `Request failed (HTTP ${status}).`
+}
 
+async function initAjaxList(config: ApiListConfig): Promise<void> {
+    const { grid, apiUrl, csrfToken, searchInput, addForm, editForm, editModal, render } = config
     const loadingState = document.getElementById("loading")
-    const errorState   = document.getElementById("error")
-    const emptyState   = document.getElementById("empty")
+    const errorState = document.getElementById("error")
+    const emptyState = document.getElementById("empty")
+    if (!loadingState || !errorState || !emptyState) return
+    const loading = loadingState
+    const error = errorState
+    const empty = emptyState
 
-    let abortCtrl: AbortController | undefined
-    let debounceTimer: ReturnType<typeof setTimeout> | undefined
+    let abortController: AbortController | undefined
+    let debounceTimer: ReturnType<typeof setTimeout>
+    let itemsById = new Map<string, ApiItem>()
 
-    async function loadData(query = ""): Promise<void>
-    {
-        abortCtrl?.abort()
-        abortCtrl = new AbortController()
+    function showState(state: "loading" | "error" | "empty" | "grid"): void {
+        loading.style.display = state === "loading" ? "block" : "none"
+        error.style.display = state === "error" ? "block" : "none"
+        empty.style.display = state === "empty" ? "block" : "none"
+        grid.style.display = state === "grid" ? "block" : "none"
+    }
 
-        try 
-        {
-            if (loadingState) loadingState.style.display = "block"
-            if (errorState)   errorState.style.display   = "none"
-            if (emptyState)   emptyState.style.display   = "none"
-            
-            listContainer.style.display = "none"
-            
-            const url = query ? `${baseUrl}?title=${encodeURIComponent(query)}` : baseUrl
-
-            const res = await fetch(url, {
-                headers: { "Accept": "application/json" },
-                signal: abortCtrl.signal
+    async function fetchItems(query = ""): Promise<void> {
+        abortController?.abort()
+        abortController = new AbortController()
+        showState("loading")
+        try {
+            const url = new URL(apiUrl, window.location.origin)
+            if (query) url.searchParams.set("title", query)
+            const response = await fetch(url, {
+                headers: { Accept: "application/json" },
+                signal: abortController.signal,
             })
-
-            if (!res.ok) throw new Error("Network err")
-
-            const data: T[] = await res.json()
-
-            
-            if (loadingState) loadingState.style.display = "none"
-            
-            listContainer.innerHTML = ""
-
-            if (data.length === 0) 
-            {
-                if (emptyState) emptyState.style.display = "block"
-                else listContainer.innerHTML = '<p class="dinkus">Nothing.</p>'
-                
-                return
-            }
-
-            listContainer.style.display = "block"
-            data.forEach(item => 
-            {
-                const li = document.createElement("li")
-            
-                li.innerHTML = render(item)
-            
-                listContainer.appendChild(li)
-            })
-        } 
-        
-        catch (e) 
-        {
-            if (e instanceof DOMException && e.name === "AbortError") return
-            
-            if (loadingState) loadingState.style.display = "none"
-            if (errorState) errorState.style.display     = "block"
-        
-            console.error(e)
+            if (!response.ok) throw new Error(`HTTP ${response.status}`)
+            const items: ApiItem[] = await response.json()
+            itemsById = new Map(items.map(item => [item.id, item]))
+            grid.replaceChildren(...items.map(render))
+            showState(items.length ? "grid" : "empty")
+        } catch (error) {
+            if (error instanceof DOMException && error.name === "AbortError") return
+            console.error(error)
+            showState("error")
         }
     }
 
-    searchInput?.addEventListener("input", () => 
-    {
+    async function write(url: string, method: string, payload?: Record<string, string | null>): Promise<void> {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: payload ? JSON.stringify(payload) : undefined,
+        })
+        if (response.status === 204) return
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(apiErrorMessage(data, response.status))
+    }
+
+    async function submitForm(form: HTMLFormElement, url: string, method: string, modal?: (HTMLElement & { hidePopover(): void }) | null): Promise<void> {
+        const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')
+        if (!button) return
+        button.disabled = true
+        try {
+            await write(url, method, apiFormData(form))
+            form.reset()
+            modal?.hidePopover()
+            showToast("Success", method === "POST" ? "Entry added." : "Entry updated.", "success")
+            await fetchItems(searchInput.value.trim())
+        } catch (error) {
+            showToast("Request failed", error instanceof Error ? error.message : "Request failed.", "error")
+        } finally {
+            button.disabled = false
+        }
+    }
+
+    addForm?.addEventListener("submit", event => {
+        event.preventDefault()
+        void submitForm(addForm, apiUrl, "POST", document.getElementById("add-modal") as HTMLElement & { hidePopover(): void } | null)
+    })
+
+    editForm?.addEventListener("submit", event => {
+        event.preventDefault()
+        const id = editForm.querySelector<HTMLInputElement>("#edit-id")?.value
+        if (id) void submitForm(editForm, `${apiUrl}${encodeURIComponent(id)}/`, "PATCH", editModal)
+    })
+
+    grid.addEventListener("click", event => {
+        if (!(event.target instanceof Element)) return
+        const button = event.target.closest<HTMLButtonElement>("button[data-action]")
+        if (!button || button.disabled) return
+        const action = button.dataset.action
+        const id = button.dataset.id
+        if (!id) return
+
+        if (action === "edit") {
+            const item = itemsById.get(id)
+            if (!item || !editForm || !editModal) return
+            editForm.querySelector<HTMLInputElement>("#edit-id")!.value = id
+            for (const field of editForm.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("[name^='edit-']")) {
+                const name = field.name.slice(5)
+                field.value = name.endsWith("_at") ? apiDateInput(item[name]) : String(item[name] ?? "")
+            }
+            editModal.showPopover()
+            return
+        }
+
+        if (action !== "star" && action !== "delete") return
+        if (!config.isAuthenticated || (action === "delete" && !config.canDelete)) return
+        if (action === "delete" && !window.confirm("Delete this entry?")) return
+        button.disabled = true
+        const detailUrl = `${apiUrl}${encodeURIComponent(id)}/`
+        void write(action === "star" ? `${detailUrl}star/` : detailUrl, action === "star" ? "POST" : "DELETE")
+            .then(async () => {
+                showToast("Success", action === "star" ? "Star updated." : "Entry deleted.", "success")
+                await fetchItems(searchInput.value.trim())
+            })
+            .catch(error => showToast("Request failed", error instanceof Error ? error.message : "Request failed.", "error"))
+            .finally(() => { button.disabled = false })
+    })
+
+    searchInput.addEventListener("input", () => {
         clearTimeout(debounceTimer)
-
-        debounceTimer = setTimeout(() => 
-        {
-            loadData(searchInput.value.trim())
-        }, 300)
+        debounceTimer = setTimeout(() => { void fetchItems(searchInput.value.trim()) }, 300)
     })
 
-    addForm?.addEventListener("submit", async e => 
-    {
-        e.preventDefault()
-
-        const btn = addForm.querySelector<HTMLButtonElement>('button[type="submit"]')
-
-        if (!btn) return
-
-        btn.disabled = true
-
-        try 
-        {
-            const res = await fetch(baseUrl, {
-                method: "POST",
-                body: new FormData(addForm),
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            })
-
-            const result: AjaxListResponse = await res.json().catch(() => ({}))
-
-            if (res.ok) 
-            {
-                addForm.reset()
-
-                if (modalId) document.getElementById(modalId)?.hidePopover()
-                if (typeof showToast !== "undefined") showToast("Success", "Entry added successfully!", "success")
-
-                loadData(searchInput?.value.trim() ?? "")
-            } 
-            
-            else 
-            {
-                const errs = result.errors ? Object.values(result.errors).flat().map(e => e.message) : ["Error saving."]
-
-                if (typeof showToast !== "undefined") showToast("Failed", errs.join(" "), "error")
-            }
-        } 
-        
-        finally 
-        {
-            btn.disabled = false
-        }
-    })
-
-    listContainer.addEventListener("submit", async e => 
-    {
-        const form = e.target
-
-        if (!(form instanceof HTMLFormElement)) return
-
-        e.preventDefault()
-
-        if (form.classList.contains("delete-form") && !confirm("Delete this entry?")) return
-
-        try 
-        {
-            const res = await fetch(form.action, {
-                method: "POST",
-                body: new FormData(form),
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            })
-
-            if (res.redirected && res.url.includes("login")) 
-            {
-                window.location.href = res.url
-                return
-            }
-
-            if (res.ok) 
-            {
-                if (form.classList.contains("delete-form")) 
-                {
-                    if (typeof showToast !== "undefined") 
-                    {
-                        showToast("Deleted", "Entry removed.", "success")
-                    }
-                }
-
-                loadData(searchInput?.value.trim() ?? "")
-            } 
-            
-            else if (res.status === 403) 
-            {
-                if (typeof showToast !== "undefined") 
-                {
-                    showToast("Denied", "Permission denied.", "error")
-                }
-            }
-        } 
-        
-        catch (err) 
-        {
-            console.error(err)
-        }
-    })
-
-    loadData(searchInput?.value.trim() ?? "")
+    void fetchItems(searchInput.value.trim())
 }

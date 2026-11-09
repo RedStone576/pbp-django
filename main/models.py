@@ -5,6 +5,7 @@ from django.db import models
 
 
 class Experience(models.Model):
+    starred_by = models.ManyToManyField(User, related_name="starred_experience", blank=True)
     EXPERIENCE_CHOICES = [
         ('internship', 'Internship'),
         ('research', 'Research'),
@@ -30,6 +31,7 @@ class Experience(models.Model):
         return self.ended_at is None
 
 class Education(models.Model):
+    starred_by = models.ManyToManyField(User, related_name="starred_education", blank=True)
     id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     institution  = models.CharField(max_length=255)
     program      = models.CharField(max_length=255)

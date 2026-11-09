@@ -1,144 +1,176 @@
 "use strict";
 function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, meow => ({
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
-        "'": "&#39;"
-    })[meow]);
+        "'": "&#39;",
+    })[char]);
+}
+function apiDateInput(value) {
+    if (!value)
+        return "";
+    const date = new Date(String(value));
+    if (Number.isNaN(date.getTime()))
+        return "";
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+}
+function apiDateValue(value) {
+    if (!value)
+        return null;
+    const date = new Date(String(value));
+    return Number.isNaN(date.getTime()) ? String(value) : date.toISOString();
+}
+function apiFormData(form) {
+    const payload = {};
+    for (const [rawName, value] of new FormData(form)) {
+        if (rawName === "csrfmiddlewaretoken" || rawName === "id" || typeof value !== "string")
+            continue;
+        const name = rawName.startsWith("edit-") ? rawName.slice(5) : rawName;
+        payload[name] = name.endsWith("_at") ? apiDateValue(value) : value;
+    }
+    return payload;
+}
+function apiErrorMessage(data, status) {
+    if (data && typeof data === "object") {
+        const messages = Object.values(data).flatMap(value => Array.isArray(value) ? value.map(String) : [String(value)]);
+        if (messages.length)
+            return messages.join(" ");
+    }
+    return `Request failed (HTTP ${status}).`;
 }
 async function initAjaxList(config) {
-    const { apiUrl, containerId, searchInputId, addFormId, modalId, render } = config;
-    const container = document.getElementById(containerId);
-    const searchInput = document.getElementById(searchInputId);
-    const addForm = document.getElementById(addFormId);
-    if (!container || !apiUrl)
-        return;
-    const listContainer = container;
-    const baseUrl = apiUrl;
+    const { grid, apiUrl, csrfToken, searchInput, addForm, editForm, editModal, render } = config;
     const loadingState = document.getElementById("loading");
     const errorState = document.getElementById("error");
     const emptyState = document.getElementById("empty");
-    let abortCtrl;
+    if (!loadingState || !errorState || !emptyState)
+        return;
+    const loading = loadingState;
+    const error = errorState;
+    const empty = emptyState;
+    let abortController;
     let debounceTimer;
-    async function loadData(query = "") {
-        abortCtrl?.abort();
-        abortCtrl = new AbortController();
+    let itemsById = new Map();
+    function showState(state) {
+        loading.style.display = state === "loading" ? "block" : "none";
+        error.style.display = state === "error" ? "block" : "none";
+        empty.style.display = state === "empty" ? "block" : "none";
+        grid.style.display = state === "grid" ? "block" : "none";
+    }
+    async function fetchItems(query = "") {
+        abortController?.abort();
+        abortController = new AbortController();
+        showState("loading");
         try {
-            if (loadingState)
-                loadingState.style.display = "block";
-            if (errorState)
-                errorState.style.display = "none";
-            if (emptyState)
-                emptyState.style.display = "none";
-            listContainer.style.display = "none";
-            const url = query ? `${baseUrl}?title=${encodeURIComponent(query)}` : baseUrl;
-            const res = await fetch(url, {
-                headers: { "Accept": "application/json" },
-                signal: abortCtrl.signal
+            const url = new URL(apiUrl, window.location.origin);
+            if (query)
+                url.searchParams.set("title", query);
+            const response = await fetch(url, {
+                headers: { Accept: "application/json" },
+                signal: abortController.signal,
             });
-            if (!res.ok)
-                throw new Error("Network err");
-            const data = await res.json();
-            if (loadingState)
-                loadingState.style.display = "none";
-            listContainer.innerHTML = "";
-            if (data.length === 0) {
-                if (emptyState)
-                    emptyState.style.display = "block";
-                else
-                    listContainer.innerHTML = '<p class="dinkus">Nothing.</p>';
-                return;
-            }
-            listContainer.style.display = "block";
-            data.forEach(item => {
-                const li = document.createElement("li");
-                li.innerHTML = render(item);
-                listContainer.appendChild(li);
-            });
+            if (!response.ok)
+                throw new Error(`HTTP ${response.status}`);
+            const items = await response.json();
+            itemsById = new Map(items.map(item => [item.id, item]));
+            grid.replaceChildren(...items.map(render));
+            showState(items.length ? "grid" : "empty");
         }
-        catch (e) {
-            if (e instanceof DOMException && e.name === "AbortError")
+        catch (error) {
+            if (error instanceof DOMException && error.name === "AbortError")
                 return;
-            if (loadingState)
-                loadingState.style.display = "none";
-            if (errorState)
-                errorState.style.display = "block";
-            console.error(e);
+            console.error(error);
+            showState("error");
         }
     }
-    searchInput?.addEventListener("input", () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            loadData(searchInput.value.trim());
-        }, 300);
-    });
-    addForm?.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const btn = addForm.querySelector('button[type="submit"]');
-        if (!btn)
+    async function write(url, method, payload) {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: payload ? JSON.stringify(payload) : undefined,
+        });
+        if (response.status === 204)
             return;
-        btn.disabled = true;
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok)
+            throw new Error(apiErrorMessage(data, response.status));
+    }
+    async function submitForm(form, url, method, modal) {
+        const button = form.querySelector('button[type="submit"]');
+        if (!button)
+            return;
+        button.disabled = true;
         try {
-            const res = await fetch(baseUrl, {
-                method: "POST",
-                body: new FormData(addForm),
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            });
-            const result = await res.json().catch(() => ({}));
-            if (res.ok) {
-                addForm.reset();
-                if (modalId)
-                    document.getElementById(modalId)?.hidePopover();
-                if (typeof showToast !== "undefined")
-                    showToast("Success", "Entry added successfully!", "success");
-                loadData(searchInput?.value.trim() ?? "");
-            }
-            else {
-                const errs = result.errors ? Object.values(result.errors).flat().map(e => e.message) : ["Error saving."];
-                if (typeof showToast !== "undefined")
-                    showToast("Failed", errs.join(" "), "error");
-            }
+            await write(url, method, apiFormData(form));
+            form.reset();
+            modal?.hidePopover();
+            showToast("Success", method === "POST" ? "Entry added." : "Entry updated.", "success");
+            await fetchItems(searchInput.value.trim());
+        }
+        catch (error) {
+            showToast("Request failed", error instanceof Error ? error.message : "Request failed.", "error");
         }
         finally {
-            btn.disabled = false;
+            button.disabled = false;
         }
+    }
+    addForm?.addEventListener("submit", event => {
+        event.preventDefault();
+        void submitForm(addForm, apiUrl, "POST", document.getElementById("add-modal"));
     });
-    listContainer.addEventListener("submit", async (e) => {
-        const form = e.target;
-        if (!(form instanceof HTMLFormElement))
+    editForm?.addEventListener("submit", event => {
+        event.preventDefault();
+        const id = editForm.querySelector("#edit-id")?.value;
+        if (id)
+            void submitForm(editForm, `${apiUrl}${encodeURIComponent(id)}/`, "PATCH", editModal);
+    });
+    grid.addEventListener("click", event => {
+        if (!(event.target instanceof Element))
             return;
-        e.preventDefault();
-        if (form.classList.contains("delete-form") && !confirm("Delete this entry?"))
+        const button = event.target.closest("button[data-action]");
+        if (!button || button.disabled)
             return;
-        try {
-            const res = await fetch(form.action, {
-                method: "POST",
-                body: new FormData(form),
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            });
-            if (res.redirected && res.url.includes("login")) {
-                window.location.href = res.url;
+        const action = button.dataset.action;
+        const id = button.dataset.id;
+        if (!id)
+            return;
+        if (action === "edit") {
+            const item = itemsById.get(id);
+            if (!item || !editForm || !editModal)
                 return;
+            editForm.querySelector("#edit-id").value = id;
+            for (const field of editForm.querySelectorAll("[name^='edit-']")) {
+                const name = field.name.slice(5);
+                field.value = name.endsWith("_at") ? apiDateInput(item[name]) : String(item[name] ?? "");
             }
-            if (res.ok) {
-                if (form.classList.contains("delete-form")) {
-                    if (typeof showToast !== "undefined") {
-                        showToast("Deleted", "Entry removed.", "success");
-                    }
-                }
-                loadData(searchInput?.value.trim() ?? "");
-            }
-            else if (res.status === 403) {
-                if (typeof showToast !== "undefined") {
-                    showToast("Denied", "Permission denied.", "error");
-                }
-            }
+            editModal.showPopover();
+            return;
         }
-        catch (err) {
-            console.error(err);
-        }
+        if (action !== "star" && action !== "delete")
+            return;
+        if (!config.isAuthenticated || (action === "delete" && !config.canDelete))
+            return;
+        if (action === "delete" && !window.confirm("Delete this entry?"))
+            return;
+        button.disabled = true;
+        const detailUrl = `${apiUrl}${encodeURIComponent(id)}/`;
+        void write(action === "star" ? `${detailUrl}star/` : detailUrl, action === "star" ? "POST" : "DELETE")
+            .then(async () => {
+            showToast("Success", action === "star" ? "Star updated." : "Entry deleted.", "success");
+            await fetchItems(searchInput.value.trim());
+        })
+            .catch(error => showToast("Request failed", error instanceof Error ? error.message : "Request failed.", "error"))
+            .finally(() => { button.disabled = false; });
     });
-    loadData(searchInput?.value.trim() ?? "");
+    searchInput.addEventListener("input", () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => { void fetchItems(searchInput.value.trim()); }, 300);
+    });
+    void fetchItems(searchInput.value.trim());
 }

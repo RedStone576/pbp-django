@@ -1,27 +1,20 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
 {% block meta %}
-     <title>{{ name }} - Portofolio</title>
+    <title>{{ name }} - Portofolio</title>
 {% endblock meta %}
-
 {% block content %}
     <section aria-labelledby="aboutme">
         <h2 id="aboutme">About Me</h2>
-
-        <p>
-            {{ bio|safe }}
-        </p>
+        <p>{{ bio|safe }}</p>
     </section>
-
     <section aria-labelledby="myviews">
         <h2 id="aboutme">Manifesto</h2>
-
         <p>I'm genuinely interested in the ethics of computing; what we build and what we ACTUALLY ship. I did considered a philosophy degree before I unavoidably went into Computer Science, so I guess that lens stuck around.</p>
-    
         <p>I care about standards and how systems survive for years, even decades. For some reason, backwards compatibility gets treated as technical debt, but really, it's a constraint that teaches you something. That weird "for who?" decisions we make just to not break things. I feel like there's wisdom there if you look closely.</p>
-        
         <p>Broadly, I'm curious about programming languages, the web platform, and open source software.</p>
     </section>
-
-    <img src="/static/img/me.webp" alt="Photo of {{ name }}" width="489" height="312">
+    <img src="/static/img/me.webp"
+         alt="Photo of {{ name }}"
+         width="489"
+         height="312">
 {% endblock content %}

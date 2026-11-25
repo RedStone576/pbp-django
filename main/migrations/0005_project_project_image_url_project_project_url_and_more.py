@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('main', '0004_education_starred_by_experience_starred_by'),
+        ("main", "0004_education_starred_by_experience_starred_by"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='project_image_url',
-            field=models.URLField(blank=True, default=''),
+            model_name="project",
+            name="project_image_url",
+            field=models.URLField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='project',
-            name='project_url',
-            field=models.URLField(blank=True, default=''),
+            model_name="project",
+            name="project_url",
+            field=models.URLField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='project',
-            name='tech_stack',
-            field=models.CharField(blank=True, default='', max_length=255),
+            model_name="project",
+            name="tech_stack",
+            field=models.CharField(blank=True, default="", max_length=255),
         ),
     ]

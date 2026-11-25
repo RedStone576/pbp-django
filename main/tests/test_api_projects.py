@@ -13,17 +13,24 @@ from main.models import Project
 class ProjectAPITest(APITestCase):
     def setUp(self):
         self.owner = User.objects.create_superuser(
-            username="owner", password="test-password", email="owner@example.com",
+            username="owner",
+            password="test-password",
+            email="owner@example.com",
         )
-        self.visitor = User.objects.create_user(username="visitor", password="test-password")
+        self.visitor = User.objects.create_user(
+            username="visitor", password="test-password"
+        )
         self.project = Project.objects.create(
-            title="Portfolio", description="My website", link="https://example.com/",
+            title="Portfolio",
+            description="My website",
+            link="https://example.com/",
         )
         self.list_url = reverse("api:project-list")
         self.detail_url = reverse("api:project-detail", args=[self.project.id])
         self.star_url = reverse("api:project-star", args=[self.project.id])
         self.payload = {
-            "title": "New project", "description": "A useful app",
+            "title": "New project",
+            "description": "A useful app",
             "link": "https://example.com/",
         }
 
@@ -33,7 +40,9 @@ class ProjectAPITest(APITestCase):
         self.assertEqual(response.data[0]["id"], str(self.project.id))
         self.assertFalse(response.data[0]["is_starred"])
         self.assertNotIn("fields", response.data[0])
-        self.assertEqual(self.client.get(self.detail_url).status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            self.client.get(self.detail_url).status_code, status.HTTP_200_OK
+        )
 
     def test_search_and_empty_results(self):
         response = self.client.get(self.list_url, {"title": "PORT"})
@@ -48,8 +57,18 @@ class ProjectAPITest(APITestCase):
     def test_guest_and_visitor_cannot_write(self):
         for user in (None, self.visitor):
             self.client.force_authenticate(user=user)
-            self.assertEqual(self.client.post(self.list_url, self.payload, format="json").status_code, 403)
-            self.assertEqual(self.client.patch(self.detail_url, {"title": "Changed"}, format="json").status_code, 403)
+            self.assertEqual(
+                self.client.post(
+                    self.list_url, self.payload, format="json"
+                ).status_code,
+                403,
+            )
+            self.assertEqual(
+                self.client.patch(
+                    self.detail_url, {"title": "Changed"}, format="json"
+                ).status_code,
+                403,
+            )
             self.assertEqual(self.client.delete(self.detail_url).status_code, 403)
         self.assertEqual(Project.objects.count(), 1)
         self.project.refresh_from_db()
@@ -68,18 +87,24 @@ class ProjectAPITest(APITestCase):
             ({"title": '<img src="x" onerror="alert(1)">'}, "title"),
             ({"link": "javascript:alert(1)"}, "link"),
         ]:
-            response = self.client.post(self.list_url, {**self.payload, **changes}, format="json")
+            response = self.client.post(
+                self.list_url, {**self.payload, **changes}, format="json"
+            )
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertIn(field, response.data)
         self.assertEqual(Project.objects.count(), 1)
 
     def test_patch_put_and_delete(self):
         self.client.force_authenticate(user=self.owner)
-        response = self.client.patch(self.detail_url, {"title": "Changed"}, format="json")
+        response = self.client.patch(
+            self.detail_url, {"title": "Changed"}, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.project.refresh_from_db()
         self.assertEqual(self.project.description, "My website")
-        response = self.client.put(self.detail_url, {"title": "Incomplete"}, format="json")
+        response = self.client.put(
+            self.detail_url, {"title": "Incomplete"}, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         response = self.client.put(self.detail_url, self.payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -89,7 +114,9 @@ class ProjectAPITest(APITestCase):
         self.assertFalse(Project.objects.filter(pk=self.project.id).exists())
 
     def test_star_requires_login_and_toggles(self):
-        self.assertEqual(self.client.post(self.star_url).status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            self.client.post(self.star_url).status_code, status.HTTP_403_FORBIDDEN
+        )
         self.client.force_authenticate(user=self.visitor)
         response = self.client.post(self.star_url)
         self.assertTrue(response.data["is_starred"])
@@ -100,10 +127,17 @@ class ProjectAPITest(APITestCase):
 
     def test_computed_fields_are_read_only(self):
         self.client.force_authenticate(user=self.owner)
-        response = self.client.post(self.list_url, {
-            **self.payload, "star_count": 99, "is_starred": True,
-            "starred_by_names": "forged", "starred_by": [self.visitor.id],
-        }, format="json")
+        response = self.client.post(
+            self.list_url,
+            {
+                **self.payload,
+                "star_count": 99,
+                "is_starred": True,
+                "starred_by_names": "forged",
+                "starred_by": [self.visitor.id],
+            },
+            format="json",
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["star_count"], 0)
         self.assertFalse(response.data["is_starred"])
@@ -112,11 +146,15 @@ class ProjectAPITest(APITestCase):
         self.visitor.is_staff = True
         self.visitor.save()
         self.client.force_authenticate(user=self.visitor)
-        response = self.client.patch(self.detail_url, {"title": "Changed"}, format="json")
+        response = self.client.patch(
+            self.detail_url, {"title": "Changed"}, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.visitor.groups.add(Group.objects.create(name="Editor"))
-        response = self.client.patch(self.detail_url, {"title": "Changed"}, format="json")
+        response = self.client.patch(
+            self.detail_url, {"title": "Changed"}, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             self.client.post(self.list_url, self.payload, format="json").status_code,
@@ -129,7 +167,10 @@ class ProjectAPITest(APITestCase):
 
     def test_wrong_method(self):
         self.client.force_authenticate(user=self.owner)
-        self.assertEqual(self.client.delete(self.list_url).status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(
+            self.client.delete(self.list_url).status_code,
+            status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
 
     def test_session_write_without_csrf_is_rejected(self):
         client = APIClient(enforce_csrf_checks=True)
@@ -145,6 +186,9 @@ class ProjectAPITest(APITestCase):
         token = get_token(request)
         client.cookies["csrftoken"] = request.META["CSRF_COOKIE"]
         response = client.post(
-            self.list_url, self.payload, format="json", HTTP_X_CSRFTOKEN=token,
+            self.list_url,
+            self.payload,
+            format="json",
+            HTTP_X_CSRFTOKEN=token,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

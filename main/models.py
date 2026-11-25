@@ -5,23 +5,27 @@ from django.db import models
 
 
 class Experience(models.Model):
-    starred_by = models.ManyToManyField(User, related_name="starred_experience", blank=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_experience", blank=True
+    )
     EXPERIENCE_CHOICES = [
-        ('internship', 'Internship'),
-        ('research', 'Research'),
-        ('volunteer', 'Volunteer'),
-        ('part-time', 'Part-Time'),
-        ('full-time', 'Full-Time'),
-        ('freelance', 'Freelance'),
+        ("internship", "Internship"),
+        ("research", "Research"),
+        ("volunteer", "Volunteer"),
+        ("part-time", "Part-Time"),
+        ("full-time", "Full-Time"),
+        ("freelance", "Freelance"),
     ]
 
-    id          = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title       = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
     description = models.TextField()
-    category    = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
-    thumbnail   = models.URLField(blank=True, null=True)
-    started_at  = models.DateTimeField(blank=True, null=True)
-    ended_at    = models.DateTimeField(blank=True, null=True)
+    category = models.CharField(
+        max_length=20, choices=EXPERIENCE_CHOICES, default="full-time"
+    )
+    thumbnail = models.URLField(blank=True, null=True)
+    started_at = models.DateTimeField(blank=True, null=True)
+    ended_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -30,27 +34,33 @@ class Experience(models.Model):
     def is_ongoing(self):
         return self.ended_at is None
 
+
 class Education(models.Model):
-    starred_by = models.ManyToManyField(User, related_name="starred_education", blank=True)
-    id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    institution  = models.CharField(max_length=255)
-    program      = models.CharField(max_length=255)
-    field        = models.CharField(max_length=255)
-    started_at   = models.DateTimeField(blank=True, null=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_education", blank=True
+    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    institution = models.CharField(max_length=255)
+    program = models.CharField(max_length=255)
+    field = models.CharField(max_length=255)
+    started_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.program
 
+
 class Project(models.Model):
-    id                = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title             = models.CharField(max_length=255)
-    description       = models.TextField()
-    tech_stack        = models.CharField(max_length=255, blank=True, default="")
-    project_url       = models.URLField(blank=True, default="")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    tech_stack = models.CharField(max_length=255, blank=True, default="")
+    project_url = models.URLField(blank=True, default="")
     project_image_url = models.URLField(blank=True, default="")
-    link              = models.URLField(blank=True, null=True)
-    created_at        = models.DateTimeField(blank=True, null=True)
-    starred_by        = models.ManyToManyField(User, related_name="starred_projects", blank=True)
+    link = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_projects", blank=True
+    )
 
     def __str__(self):
         return self.title

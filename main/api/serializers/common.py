@@ -19,7 +19,11 @@ class StarredModelSerializer(serializers.ModelSerializer):
 
     def get_is_starred(self, obj):
         request = self.context.get("request")
-        return bool(request and request.user.is_authenticated and request.user in obj.starred_by.all())
+        return bool(
+            request
+            and request.user.is_authenticated
+            and request.user in obj.starred_by.all()
+        )
 
     def get_starred_by_names(self, obj):
         return ", ".join(user.username for user in obj.starred_by.all())

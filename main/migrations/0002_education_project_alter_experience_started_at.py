@@ -5,35 +5,50 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('main', '0001_initial'),
+        ("main", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Education',
+            name="Education",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('institution', models.CharField(max_length=255)),
-                ('program', models.CharField(max_length=255)),
-                ('field', models.CharField(max_length=255)),
-                ('started_at', models.DateTimeField(blank=True, null=True)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("institution", models.CharField(max_length=255)),
+                ("program", models.CharField(max_length=255)),
+                ("field", models.CharField(max_length=255)),
+                ("started_at", models.DateTimeField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Project',
+            name="Project",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('title', models.CharField(max_length=255)),
-                ('description', models.TextField()),
-                ('link', models.URLField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(blank=True, null=True)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("title", models.CharField(max_length=255)),
+                ("description", models.TextField()),
+                ("link", models.URLField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(blank=True, null=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='experience',
-            name='started_at',
+            model_name="experience",
+            name="started_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

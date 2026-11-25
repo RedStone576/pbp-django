@@ -65,7 +65,9 @@ def list_view(request, resource):
             items = items.filter(**{f"{config['search_field']}__icontains": query})
         items = items.order_by(*config["ordering"])
         serializer = config["serializer"](
-            items, many=True, context={"request": request},
+            items,
+            many=True,
+            context={"request": request},
         )
         return Response(serializer.data)
 
@@ -80,7 +82,8 @@ def list_view(request, resource):
 def detail_view(request, resource, item_id):
     config = get_resource(resource)
     item = get_object_or_404(
-        config["model"].objects.prefetch_related("starred_by"), pk=item_id,
+        config["model"].objects.prefetch_related("starred_by"),
+        pk=item_id,
     )
 
     if request.method in ("GET", "HEAD"):

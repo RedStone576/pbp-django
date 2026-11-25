@@ -24,7 +24,12 @@ def strip_html_tags(*fields_to_strip):
 
                     if not stripped:
                         # https://docs.djangoproject.com/en/5.0/ref/forms/api/#django.forms.Form.add_error
-                        self.add_error(field, ValidationError(f"{self.fields[field].label} can't contain only HTML tags."))
+                        self.add_error(
+                            field,
+                            ValidationError(
+                                f"{self.fields[field].label} can't contain only HTML tags."
+                            ),
+                        )
                     else:
                         cleaned_data[field] = stripped
 
@@ -33,6 +38,7 @@ def strip_html_tags(*fields_to_strip):
         cls.clean = clean
 
         return cls
+
     return decorator
 
 
@@ -40,7 +46,14 @@ def strip_html_tags(*fields_to_strip):
 class ExperienceForm(ModelForm):
     class Meta:
         model = Experience
-        fields = ["title", "description", "category", "thumbnail", "started_at", "ended_at"]
+        fields = [
+            "title",
+            "description",
+            "category",
+            "thumbnail",
+            "started_at",
+            "ended_at",
+        ]
 
         labels = {
             "title": "Title",
@@ -52,7 +65,9 @@ class ExperienceForm(ModelForm):
         }
 
         widgets = {
-            "title": TextInput(attrs={"placeholder": "Software Engineer", "maxlength": 255}),
+            "title": TextInput(
+                attrs={"placeholder": "Software Engineer", "maxlength": 255}
+            ),
             "description": Textarea(attrs={"placeholder": "Describe here", "rows": 3}),
             "category": Select(),
             "thumbnail": URLInput(attrs={"placeholder": "https://..."}),
@@ -75,9 +90,15 @@ class EducationForm(ModelForm):
         }
 
         widgets = {
-            "institution": TextInput(attrs={"placeholder": "Universitas Indonesia", "maxlength": 255}),
-            "program": TextInput(attrs={"placeholder": "Bachelor of Computer Science", "maxlength": 255}),
-            "field": TextInput(attrs={"placeholder": "Computer Science", "maxlength": 255}),
+            "institution": TextInput(
+                attrs={"placeholder": "Universitas Indonesia", "maxlength": 255}
+            ),
+            "program": TextInput(
+                attrs={"placeholder": "Bachelor of Computer Science", "maxlength": 255}
+            ),
+            "field": TextInput(
+                attrs={"placeholder": "Computer Science", "maxlength": 255}
+            ),
             "started_at": DateTimeInput(attrs={"type": "datetime-local"}),
         }
 

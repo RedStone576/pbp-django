@@ -23,6 +23,7 @@ def register(request):
 
     return render(request, "register.html", GLOBAL_CONTEXT(request) | context)
 
+
 def login_user(request):
     form = AuthenticationForm(request, data=request.POST or None)
 
@@ -32,7 +33,9 @@ def login_user(request):
         login(request, user)
 
         response = redirect("main:show_main")
-        response.set_cookie("last_login", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        response.set_cookie(
+            "last_login", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
 
         return response
 
@@ -41,6 +44,7 @@ def login_user(request):
     }
 
     return render(request, "login.html", GLOBAL_CONTEXT(request) | context)
+
 
 def logout_user(request):
     logout(request)

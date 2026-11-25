@@ -42,12 +42,15 @@ class Education(models.Model):
         return self.program
 
 class Project(models.Model):
-    id          = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title       = models.CharField(max_length=255)
-    description = models.TextField()
-    link        = models.URLField(blank=True, null=True)
-    created_at  = models.DateTimeField(blank=True, null=True)
-    starred_by  = models.ManyToManyField(User, related_name="starred_projects", blank=True)
+    id                = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title             = models.CharField(max_length=255)
+    description       = models.TextField()
+    tech_stack        = models.CharField(max_length=255, blank=True, default="")
+    project_url       = models.URLField(blank=True, default="")
+    project_image_url = models.URLField(blank=True, default="")
+    link              = models.URLField(blank=True, null=True)
+    created_at        = models.DateTimeField(blank=True, null=True)
+    starred_by        = models.ManyToManyField(User, related_name="starred_projects", blank=True)
 
     def __str__(self):
         return self.title
